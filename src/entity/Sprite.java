@@ -59,24 +59,6 @@ public class Sprite extends Rectangle
 		this.velY = velY;
 	}
 	
-//	public void moveLeft(int amount)
-//	{
-//		setTranslateX(getTranslateX() - amount);
-//	}
-//	
-//	public void moveRight(int amount)
-//	{
-//		setTranslateX(getTranslateX() + amount);
-//	}
-//	public void moveUp(int amount)
-//	{
-//		setTranslateY(getTranslateY() - amount);
-//	}
-//	public void moveDown(int amount)
-//	{
-//		setTranslateY(getTranslateY() + amount);
-//	}
-	
 	public Sprite shoot()
 	{
 		
