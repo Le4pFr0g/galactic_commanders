@@ -6,7 +6,7 @@ import java.util.*;
 
 import application.Main;
 
-public class Player 
+public class Player
 {
 	private double x, y;
 	private static final double WIDTH = 50;

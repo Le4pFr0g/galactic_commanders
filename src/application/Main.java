@@ -1,18 +1,26 @@
 package application;
 
-import javafx.animation.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.scene.canvas.*;
-import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import javafx.scene.input.KeyCode;
-import entity.Enemy;
-import entity.Player;
 
-import java.util.*;
+import entity.Player;
+import entity.Enemy;
 
 public class Main extends Application
 {
@@ -80,25 +88,29 @@ public class Main extends Application
 	
 	private void spawnEnemies()
 	{
-		Thread spawner = new Thread(() -> {
-			try
-			{
-				Random random = new Random();
-				while(true)
-				{
-					double x = random.nextDouble()*WIDTH;
-					double y = random.nextDouble()*HEIGHT;
-					this.enemies.add(new Enemy(this.player , x, y));
-					Thread.sleep(1000);
-				}
-			}
-			catch (InterruptedException ex)
-			{
-				ex.printStackTrace();
-			}
-		});
-		spawner.setDaemon(true);
-		spawner.start();
+		Random random = new Random();
+		double x = random.nextDouble()*WIDTH;
+		double y = random.nextDouble()*HEIGHT;
+		this.enemies.add(new Enemy(this.player , x, y));
+//		Thread spawner = new Thread(() -> {
+//			try
+//			{
+//				Random random = new Random();
+//				while(true)
+//				{
+//					double x = random.nextDouble()*WIDTH;
+//					double y = random.nextDouble()*HEIGHT;
+//					this.enemies.add(new Enemy(this.player , x, y));
+//					Thread.sleep(1000);
+//				}
+//			}
+//			catch (InterruptedException ex)
+//			{
+//				ex.printStackTrace();
+//			}
+//		});
+//		spawner.setDaemon(true);
+//		spawner.start();
 	}
 	
 	private void update(GraphicsContext gc)
