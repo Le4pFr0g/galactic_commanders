@@ -1,20 +1,35 @@
-package entity;
+package weapons;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import application.Main;
+import entity.Player;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class Gun
 {
 	private static final double WIDTH = 50;
 	private List<Bullet> bullets = new ArrayList<>();
 	private int shootingCooldown;
+	private int bulletSpeed;
+	private int fireRate;
 
-	private int ammo = 10;
+	private int ammo;
 
-	Gun()
+	public Gun(int fireRate, int bulletSpeed, int ammo)
 	{
+		this.fireRate = fireRate;
+		this.shootingCooldown = fireRate;
+		this.bulletSpeed = bulletSpeed;
+		this.ammo = ammo;
+	}
+	
+	public void render(GraphicsContext gc, Player p, Color color)
+	{
+		gc.setFill(color);
+		gc.fillRect(p.getX()+p.getWidth(), p.getY()+p.getWidth()/2, 10, 20);
 	}
 
 	public List<Bullet> getBullets()
@@ -34,10 +49,9 @@ public class Gun
 			if (ammo > 0)
 			{
 				ammo -= 1;
-				shootingCooldown = 5;
-				//Main.schedule(150, () -> this.shooting = false);
+				shootingCooldown = fireRate;
 				double angle = Math.atan2(y - p.getY(), x - p.getX()); // Radians
-				Bullet b = new Bullet(angle, p.getX() + WIDTH / 2, p.getY() + WIDTH / 2);
+				Bullet b = new Bullet(angle, p.getX() + WIDTH / 2, p.getY() + WIDTH / 2, bulletSpeed, Color.GRAY);
 				this.bullets.add(b);
 			}
 		}
@@ -45,8 +59,7 @@ public class Gun
 		{
 			shootingCooldown--;
 		}
-		//shooting = true;
-		
+		// shooting = true;
 
 	}
 

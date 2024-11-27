@@ -5,6 +5,8 @@ import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import weapons.Bullet;
 
 public class Enemy
 {
@@ -12,24 +14,35 @@ public class Enemy
 	private int hp;
 	private double speed = 2;
 	private int shootingCooldown = 50;
-	List<Bullet> projectiles = new ArrayList<>();
+	private List<Bullet> projectiles = new ArrayList<>();
+	private int projectileSpeed;
+	private Color color;
 	
-	//private Player player;
-	private static final double WIDTH = 50;
 
-	public Enemy(Player p, double x, double y, int hp)
+	// private Player player;
+	private final double width = 50;
+
+
+
+
+	public Enemy(Player p, double x, double y, int hp, int projectileSpeed, Color color)
 	{
-		//this.player = p;
+		// this.player = p;
 		this.x = x;
 		this.y = y;
 		this.hp = hp;
+		this.projectileSpeed = projectileSpeed;
+		this.color = color;
+		
 	}
+
 	
 	public void move(Player p)
 	{
 		double tolerence = 2;
 		if (Math.abs(p.getX() - this.x) < tolerence)
-		{}
+		{
+		}
 		else if (p.getX() > this.x)
 		{
 			this.x += speed;
@@ -38,29 +51,30 @@ public class Enemy
 		{
 			this.x -= speed;
 		}
-		
+
 		if (Math.abs(p.getY() - this.y) < tolerence)
-		{}
+		{
+		}
 		else if (p.getY() > this.y)
 		{
 			this.y += speed;
 		}
 		else
 		{
-			this.y -= speed;		
+			this.y -= speed;
 		}
 	}
-	
+
 	public void attack(Player p)
 	{
 		if (shootingCooldown == 0)
 		{
 			double angle = calcAngle(this.x, p.getX(), this.y, p.getY());
-			projectiles.add(new Bullet(angle, this.x + WIDTH/2, this.y + WIDTH/2));
-			shootingCooldown = 50;
+			projectiles.add(new Bullet(angle, this.x + width / 2, this.y + width / 2, projectileSpeed, Color.DARKRED));
+			shootingCooldown = 25;
 		}
 		shootingCooldown--;
-		
+
 	}
 
 	private void onHit()
@@ -73,11 +87,28 @@ public class Enemy
 		double dx = this.x - b.getX();
 		double dy = this.y - b.getY();
 		double distance = (double) Math.sqrt(dx * dx + dy * dy);
-		if (distance < (Player.getWidth() + WIDTH))
+		//if the distance from the bullet to the enemy is less than the width of the enemy
+		if (distance < (b.getWidth() + this.width))
 		{
 			onHit();
 		}
 	}
+	
+	public List<Bullet> getProjectiles()
+	{
+		return projectiles;
+	}
+
+	public void setProjectiles(List<Bullet> projectiles)
+	{
+		this.projectiles = projectiles;
+	}
+	
+	public double getWidth()
+	{
+		return width;
+	}
+
 
 	public int getHp()
 	{
@@ -108,37 +139,36 @@ public class Enemy
 	{
 		this.y = y;
 	}
-	
+
 	public double calcAngle(double obj1X, double obj2X, double obj1Y, double obj2Y)
 	{
 		double xDis = obj2X - obj1X;
 		double yDis = obj2Y - obj1Y;
-	
-	
+
 		double angle = Math.atan2(yDis, xDis);
-	
-	
-		//angle = Math.toDegrees(angle);
-	
+
+
 		return angle;
 	}
 
 	public void render(GraphicsContext gc)
 	{
-		//enemy
-		gc.setFill(Color.RED);
-		gc.fillRect(this.x, this.y, WIDTH, WIDTH);
+		// enemy
+		gc.setFill(this.color);
+		gc.fillRect(this.x, this.y, width, width);
 
-		//double distance = Math.sqrt(Math.pow(this.x - player.getX(), 2) + Math.pow(this.y - player.getY(), 2));
-		
-		//projectiles
+		// double distance = Math.sqrt(Math.pow(this.x - player.getX(), 2) +
+		// Math.pow(this.y - player.getY(), 2));
+
+		// projectiles
 		for (Bullet element : projectiles)
 		{
-			element.render(gc, Color.DARKRED);
+			element.render(gc);
 		}
-		
-		//health
-		gc.fillText(String.valueOf(this.hp), x + WIDTH, y);
+
+		// health
+		gc.setFont(Font.getDefault());
+		gc.fillText(String.valueOf(this.hp), x + width, y);
 
 	}
 }

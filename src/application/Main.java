@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import entity.Bullet;
 import entity.Enemy;
 import entity.Player;
 import javafx.animation.Animation;
@@ -16,6 +15,7 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -24,44 +24,40 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.FillRule;
+import javafx.scene.text.Font;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import entity.PickUp;
+import pickups.AmmoPU;
+import pickups.PickUp;
+import pickups.WeaponPU;
+import weapons.Bullet;
+import weapons.Gun;
 
 public class Main extends Application
 {
-	private static final int HEIGHT = 800;
-	private static final int WIDTH = 800;
-	private static final int SPEED = 4;
-	private double mouseX, mouseY;
+	//system controls
+    private final double WIDTH = Screen.getPrimary().getBounds().getWidth() * 0.9;
+    private final double HEIGHT = Screen.getPrimary().getBounds().getHeight() * 0.9;
+    private static final int SPEED = 4;
 
-	private Player player;
-	//private Map<KeyCode, Boolean> keys = new HashMap<>();
+	//user input
 	private Set<KeyCode> keysPressed = new HashSet<>();
+	private double mouseX, mouseY;
 	private boolean isShooting = false;
-
+	
+	//game objects
+	private Player player;
 	private List<Enemy> enemies = new ArrayList<>();
+	private List<AmmoPU> ammoPUs = new ArrayList<>();
+	private List<WeaponPU> weaponPUs = new ArrayList<>();
+	
 
-	private PickUp ammoPU = new PickUp(100, 100);
 
 	public static void main(String[] args)
 	{
 		launch(args);
-	}
-
-	public static void schedule(long time, Runnable r)
-	{
-		new Thread(() ->
-		{
-			try
-			{
-				Thread.sleep(time);
-				r.run();
-			} catch (InterruptedException ex)
-			{
-				ex.printStackTrace();
-			}
-		}).start();
 	}
 
 	@Override
@@ -75,25 +71,22 @@ public class Main extends Application
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		pane.getChildren().add(canvas);
 
-		this.player = new Player(50, 50);
+		this.player = new Player(50, 50, 100);
 
-//		Timeline loop = new Timeline(new KeyFrame(Duration.millis(1000.0 / 40), e -> update(gc)));
-//		loop.setCycleCount(Animation.INDEFINITE);
-//		loop.play();
-		
-		 // Game loop using AnimationTimer
-        AnimationTimer gameLoop = new AnimationTimer() 
-        {
-            @Override
-            public void handle(long now) 
-            {
-                update(gc);
-            }
-        };
-        gameLoop.start();
+		// Game loop using AnimationTimer
+		AnimationTimer gameLoop = new AnimationTimer()
+		{
+			@Override
+			public void handle(long now)
+			{
+				update(gc);
+			}
+		};
+		gameLoop.start();
 
 		spawnEnemies();
-
+		addAmmo();
+		addWeapons();
 
 		Scene scene = new Scene(pane, WIDTH, HEIGHT);
 
@@ -107,9 +100,21 @@ public class Main extends Application
 		scene.setOnMouseReleased(this::handleMouseReleased);
 
 		primaryStage.setTitle("Galactic Commanders");
+		//primaryStage.setFullScreen(true);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
+	}
+	
+	private void addAmmo()
+	{
+		ammoPUs.add(new AmmoPU(100, 100, 1, 10, Color.MEDIUMPURPLE));
+		ammoPUs.add(new AmmoPU(100, 100, 0, 10, Color.MEDIUMPURPLE));
+	}
+	
+	private void addWeapons()
+	{
+		weaponPUs.add(new WeaponPU(WIDTH/2, HEIGHT/2, 1, Color.rgb(150, 20, 150)));
 	}
 
 	private void spawnEnemies()
@@ -117,7 +122,10 @@ public class Main extends Application
 		Random random = new Random();
 		double x = random.nextDouble() * WIDTH;
 		double y = random.nextDouble() * HEIGHT;
-		this.enemies.add(new Enemy(this.player, x, y, 100));
+		this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.rgb(255, 0, (int)(Math.random()*255))));
+		x = random.nextDouble() * WIDTH;
+		y = random.nextDouble() * HEIGHT;
+		this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.rgb(255, (int)(Math.random()*255), 0)));
 	}
 
 	private void handleKeyPressed(KeyEvent event)
@@ -159,66 +167,124 @@ public class Main extends Application
 		gc.setFill(Color.TAN);
 		gc.fillRect(0, 0, WIDTH, HEIGHT);
 		this.player.render(gc);
-		this.ammoPU.checkCollision(player);
-		this.ammoPU.render(gc);
 		
+		for (AmmoPU a : ammoPUs)
+		{
+			a.checkCollision(player);
+			a.render(gc);
+		}
+		
+		List<WeaponPU> weaponPUsToRemove = new ArrayList<>();
+		for (WeaponPU w : weaponPUs)
+		{
+			if (w.checkCollision(player))
+			{
+				weaponPUsToRemove.add(w);
+			}
+			
+			w.render(gc);
+		}
+		weaponPUs.removeAll(weaponPUsToRemove);
+
 		List<Bullet> bulletsToRemove = new ArrayList<>();
 		List<Enemy> enemiesToRemove = new ArrayList<>();
-		for (Bullet b : player.getGun().getBullets())
+		List<Bullet> projectilesToRemove = new ArrayList<>();
+		
+		//check if any player bullet hits enemy
+		for (Gun g : player.getGuns())
 		{
-			for (Enemy e : enemies)
+			for (Bullet b : g.getBullets())
 			{
-				if (b.checkCollision(e))
+				for (Enemy e : enemies)
 				{
-					System.out.println("HIT");
-					bulletsToRemove.add(b);
-					e.setHp(e.getHp() - 10);
-					if (e.getHp() <= 0)
+					if (b.checkCollision(e))
 					{
-						enemiesToRemove.add(e);
+						System.out.println("HIT ENEMY");
+						bulletsToRemove.add(b);
+						e.setHp(e.getHp() - 10);
+						if (e.getHp() <= 0)
+						{
+							enemiesToRemove.add(e);
+						}
+	
 					}
-					
 				}
 			}
+			g.getBullets().removeAll(bulletsToRemove);
 		}
-		player.getGun().getBullets().removeAll(bulletsToRemove);
-		enemies.removeAll(enemiesToRemove);
-		
+
+		//check if enemy projectile hits player
 		for (Enemy e : enemies)
 		{
-			//e.move(player);
-			e.attack(player);
+			for (Bullet p : e.getProjectiles())
+			{
+				if (p.checkCollision(player))
+				{
+					System.out.println("HIT PLAYER");
+					player.setHp(player.getHp() - 5);
+					projectilesToRemove.add(p);
+				}
+
+			}
+			e.getProjectiles().removeAll(projectilesToRemove);
+		}
+
+		
+		enemies.removeAll(enemiesToRemove);
+		
+
+		for (Enemy e : enemies)
+		{
+			if (player.isAlive())
+			{
+				e.move(player);
+				e.attack(player);
+			}
 			e.render(gc);
 		}
-
-		if (keysPressed.contains(KeyCode.W))
+		
+		if (player.getEquippedWeapon() != null)
 		{
-			this.player.move(0, -SPEED);
-		}
-		if (keysPressed.contains(KeyCode.S))
-		{
-			this.player.move(0, SPEED);
-		}
-		if (keysPressed.contains(KeyCode.A))
-		{
-			this.player.move(-SPEED, 0);
-		}
-		if (keysPressed.contains(KeyCode.D))
-		{
-			this.player.move(SPEED, 0);
-		}
-		if (isShooting)
-		{
-			this.player.getGun().shoot(player, mouseX, mouseY);
+			player.getEquippedWeapon().render(gc, player, Color.LIGHTGRAY);
 		}
 		
-//		for (KeyCode keypress : keysPressed)
-//		{
-//			System.out.println(keypress.getChar());
-//		}
-		if (isShooting)
-		System.out.println(isShooting);
+		if (player.getHp() <= 0)
+		{
+			player.kill(gc, HEIGHT, WIDTH);
 
+		}
+		else
+		{
+
+			if (keysPressed.contains(KeyCode.W))
+			{
+				this.player.move(0, -SPEED);
+			}
+			if (keysPressed.contains(KeyCode.S))
+			{
+				this.player.move(0, SPEED);
+			}
+			if (keysPressed.contains(KeyCode.A))
+			{
+				this.player.move(-SPEED, 0);
+			}
+			if (keysPressed.contains(KeyCode.D))
+			{
+				this.player.move(SPEED, 0);
+			}
+			if(keysPressed.contains(KeyCode.DIGIT1))
+			{
+				this.player.swapWeapon(this.player.getGuns().get(0));
+			}
+			if(keysPressed.contains(KeyCode.DIGIT2))
+			{
+				this.player.swapWeapon(this.player.getGuns().get(1));
+			}
+			if (isShooting && player.getEquippedWeapon() != null)
+			{
+				this.player.getEquippedWeapon().shoot(player, mouseX, mouseY);
+			}
+		}
 
 	}
 
