@@ -12,6 +12,7 @@ import entity.Bullet;
 import entity.Enemy;
 import entity.Player;
 import javafx.animation.Animation;
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -35,7 +36,7 @@ public class Main extends Application
 	private double mouseX, mouseY;
 
 	private Player player;
-	private Map<KeyCode, Boolean> keys = new HashMap<>();
+	//private Map<KeyCode, Boolean> keys = new HashMap<>();
 	private Set<KeyCode> keysPressed = new HashSet<>();
 	private boolean isShooting = false;
 
@@ -76,16 +77,23 @@ public class Main extends Application
 
 		this.player = new Player(50, 50);
 
-		Timeline loop = new Timeline(new KeyFrame(Duration.millis(1000.0 / 40), e -> update(gc)));
-		loop.setCycleCount(Animation.INDEFINITE);
-		loop.play();
+//		Timeline loop = new Timeline(new KeyFrame(Duration.millis(1000.0 / 40), e -> update(gc)));
+//		loop.setCycleCount(Animation.INDEFINITE);
+//		loop.play();
+		
+		 // Game loop using AnimationTimer
+        AnimationTimer gameLoop = new AnimationTimer() 
+        {
+            @Override
+            public void handle(long now) 
+            {
+                update(gc);
+            }
+        };
+        gameLoop.start();
 
 		spawnEnemies();
 
-//		canvas.setOnKeyPressed(e ->  this.keys.put(e.getCode(), true));
-//		canvas.setOnKeyReleased(e ->  this.keys.put(e.getCode(), false));
-//		canvas.setOnMousePressed(e -> this.player.getGun().shoot(this.player, e.getX(), e.getY()));
-//		canvas.setOnMouseDragged(e -> this.player.getGun().shoot(this.player, e.getX(), e.getY()));
 
 		Scene scene = new Scene(pane, WIDTH, HEIGHT);
 
@@ -126,7 +134,6 @@ public class Main extends Application
 	{
 		isShooting = true;
 		updateMousePosition(event);
-
 	}
 
 	private void handleMouseDragged(MouseEvent event)
@@ -204,23 +211,15 @@ public class Main extends Application
 		{
 			this.player.getGun().shoot(player, mouseX, mouseY);
 		}
+		
+//		for (KeyCode keypress : keysPressed)
+//		{
+//			System.out.println(keypress.getChar());
+//		}
+		if (isShooting)
+		System.out.println(isShooting);
 
-//		if (this.keys.getOrDefault(KeyCode.W,  false))
-//		{
-//			this.player.move(0, -SPEED);
-//		}
-//		if (this.keys.getOrDefault(KeyCode.A,  false))
-//		{
-//			this.player.move(-SPEED, 0);
-//		}
-//		if (this.keys.getOrDefault(KeyCode.S,  false))
-//		{
-//			this.player.move(0, SPEED);
-//		}
-//		if (this.keys.getOrDefault(KeyCode.D,  false))
-//		{
-//			this.player.move(SPEED, 0);
-//		}
+
 	}
 
 }

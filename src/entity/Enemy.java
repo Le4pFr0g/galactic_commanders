@@ -56,8 +56,7 @@ public class Enemy
 		if (shootingCooldown == 0)
 		{
 			double angle = calcAngle(this.x, p.getX(), this.y, p.getY());
-			System.out.println(angle);
-			projectiles.add(new Bullet(angle, this.x, this.y));
+			projectiles.add(new Bullet(angle, this.x + WIDTH/2, this.y + WIDTH/2));
 			shootingCooldown = 50;
 		}
 		shootingCooldown--;
@@ -73,7 +72,7 @@ public class Enemy
 	{
 		double dx = this.x - b.getX();
 		double dy = this.y - b.getY();
-		float distance = (float) Math.sqrt(dx * dx + dy * dy);
+		double distance = (double) Math.sqrt(dx * dx + dy * dy);
 		if (distance < (Player.getWidth() + WIDTH))
 		{
 			onHit();
@@ -119,7 +118,7 @@ public class Enemy
 		double angle = Math.atan2(yDis, xDis);
 	
 	
-		angle = Math.toDegrees(angle);
+		//angle = Math.toDegrees(angle);
 	
 		return angle;
 	}
