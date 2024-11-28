@@ -23,11 +23,13 @@ public class Player
 	{
 		this.x = x;
 		this.y = y;
+		this.hp = hp;
+
 //		guns.add(new Gun(15, 2, 10));
 //		guns.add(new Gun(40, 7, 10));
 //
 //		equippedWeapon = guns.get(0);
-		this.hp = hp;
+		
 	}
 
 	public void move(double x, double y)

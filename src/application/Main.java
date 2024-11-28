@@ -71,7 +71,7 @@ public class Main extends Application
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		pane.getChildren().add(canvas);
 
-		this.player = new Player(50, 50, 100);
+		this.player = new Player(50, 50, 1000);
 
 		// Game loop using AnimationTimer
 		AnimationTimer gameLoop = new AnimationTimer()
@@ -115,6 +115,9 @@ public class Main extends Application
 	private void addWeapons()
 	{
 		weaponPUs.add(new WeaponPU(WIDTH/2, HEIGHT/2, 1, Color.rgb(150, 20, 150)));
+		weaponPUs.add(new WeaponPU(WIDTH/3, HEIGHT/3, 2, Color.rgb(150, 20, 100)));
+
+		
 	}
 
 	private void spawnEnemies()
@@ -274,10 +277,14 @@ public class Main extends Application
 			}
 			if(keysPressed.contains(KeyCode.DIGIT1))
 			{
+				System.out.println(this.player.getGuns().get(0));
+				if (this.player.getGuns().get(0) != null)
 				this.player.swapWeapon(this.player.getGuns().get(0));
 			}
 			if(keysPressed.contains(KeyCode.DIGIT2))
 			{
+				System.out.println(this.player.getGuns().get(1));
+				if (this.player.getGuns().get(1) != null)
 				this.player.swapWeapon(this.player.getGuns().get(1));
 			}
 			if (isShooting && player.getEquippedWeapon() != null)

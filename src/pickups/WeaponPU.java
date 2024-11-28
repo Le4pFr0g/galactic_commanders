@@ -7,12 +7,15 @@ import weapons.*;
 public class WeaponPU extends PickUp
 {
 	private Gun weapon;
+	private int weaponID;
 	
 	
 	public WeaponPU(double x, double y, int weaponID, Color color)
 	{
 		
 		super(x, y, color);
+		this.weaponID = weaponID;
+
 		assignWeapon(weaponID);
 		
 	}
@@ -22,6 +25,10 @@ public class WeaponPU extends PickUp
 		if (ID == 1)
 		{
 			weapon = new Pistol();
+		}
+		if (ID == 2)
+		{
+			weapon = new Shotgun();
 		}
 		
 //		if (ID == 1)
@@ -35,9 +42,12 @@ public class WeaponPU extends PickUp
 	protected void onCollide(Player p)
 	{
 		
+		//p.getGuns().add(weaponID, weapon);
 		p.getGuns().add(weapon);
-		p.swapWeapon(p.getGuns().get(1));
-
+		if (p.getGuns().contains(weapon))
+		{
+			p.swapWeapon(weapon);
+		}
 	}
 	
 	

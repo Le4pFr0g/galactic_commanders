@@ -10,13 +10,13 @@ import javafx.scene.paint.Color;
 
 public class Gun
 {
-	private static final double WIDTH = 50;
-	private List<Bullet> bullets = new ArrayList<>();
-	private int shootingCooldown;
-	private int bulletSpeed;
-	private int fireRate;
+	protected static final double WIDTH = 50;
+	protected List<Bullet> bullets = new ArrayList<>();
+	protected int shootingCooldown;
+	protected int bulletSpeed;
+	protected int fireRate;
 
-	private int ammo;
+	protected int ammo;
 
 	public Gun(int fireRate, int bulletSpeed, int ammo)
 	{
