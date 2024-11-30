@@ -3,27 +3,16 @@ package entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import bullets.Bullet;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import weapons.Bullet;
-import weapons.Gun;
-import weapons.Pistol;
-import weapons.Shotgun;
+import weapons.*;
 
 public class Player
 {
 	private double x, y;
 	private int hp;
-	public double getSpeed()
-	{
-		return speed;
-	}
-
-	public void setSpeed(double speed)
-	{
-		this.speed = speed;
-	}
 
 	private double speed = 3;
 	private final double width = 50;
@@ -42,8 +31,10 @@ public class Player
 //
 //		equippedWeapon = guns.get(0);
 		
-		guns.add(new Pistol());
-		guns.add(new Shotgun());
+		guns.add(0, new Pistol());
+		guns.add(1, new Shotgun());
+		guns.add(2, new Chaingun());
+		guns.add(3, new RocketLauncher());
 		
 	}
 
@@ -112,6 +103,16 @@ public class Player
 			}
 		}
 
+	}
+	
+	public double getSpeed()
+	{
+		return speed;
+	}
+
+	public void setSpeed(double speed)
+	{
+		this.speed = speed;
 	}
 
 	public boolean isAlive()

@@ -3,10 +3,10 @@ package entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import bullets.Bullet;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import weapons.Bullet;
 
 public class Enemy
 {

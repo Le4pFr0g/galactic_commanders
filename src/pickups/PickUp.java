@@ -26,7 +26,7 @@ public class PickUp
 
 	protected void onCollide(Player p)
 	{
-		System.out.println("TEST: DONT PRINT THIS");
+		System.out.println("TEST: PickUp.onCollide(Player p)");
 	}
 
 	public boolean checkCollision(Player p)
@@ -37,8 +37,6 @@ public class PickUp
 		if (distance < ( getWidth()))
 		{
 			onCollide(p);
-			System.out.println("TEST");
-
 			return true;
 		}
 		else

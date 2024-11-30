@@ -16,9 +16,9 @@ public class AmmoPU extends PickUp
 		
 	}
 	
+	@Override
 	protected void onCollide(Player p)
 	{
-		if (p.getEquippedWeapon() != null)
 		p.getGuns().get(weaponID).setAmmo(p.getGuns().get(weaponID).getAmmo() + value);
 		
 		tempSpawn(Math.random() * 200, Math.random() * 200);

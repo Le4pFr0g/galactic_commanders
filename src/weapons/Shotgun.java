@@ -1,18 +1,20 @@
 package weapons;
 
+import bullets.Bullet;
 import entity.Player;
 import javafx.scene.paint.Color;
 
 public class Shotgun extends Gun
 {
-	static int fireRate = 25;
+	//full auto
+	static int fireRate = 100;
 	static int bSpeed = 2;
 	static int defaultAmmo = 10;
 	static int numOfShells = 5;
 
 	public Shotgun()
 	{
-		super(fireRate, bSpeed, defaultAmmo);
+		super(fireRate, bSpeed, defaultAmmo, false);
 		
 	}
 	
@@ -29,7 +31,7 @@ public class Shotgun extends Gun
 				double a = angle - Math.toRadians(10);
 				for (int i = 0; i < numOfShells; i++)
 				{
-					//bulletSpeed = (int)(Math.random() * 3) + 3;
+					bulletSpeed = (int)(Math.random() * 2) + 4;
 					a = a + Math.toRadians(5);
 					Bullet b = new Bullet(a, p.getX() + WIDTH / 2, p.getY() + WIDTH / 2, bulletSpeed, Color.GRAY);
 					this.bullets.add(b);

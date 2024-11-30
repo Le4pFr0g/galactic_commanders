@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import bullets.Bullet;
 import entity.Enemy;
 import entity.Player;
 import javafx.animation.Animation;
@@ -32,14 +33,13 @@ import javafx.util.Duration;
 import pickups.AmmoPU;
 import pickups.PickUp;
 import pickups.WeaponPU;
-import weapons.Bullet;
 import weapons.Gun;
 
 public class Main extends Application
 {
 	//system controls
-    private final double WIDTH = Screen.getPrimary().getBounds().getWidth() * 0.9;
-    private final double HEIGHT = Screen.getPrimary().getBounds().getHeight() * 0.9;
+    private final double WIDTH = Screen.getPrimary().getBounds().getWidth() * 0.5;
+    private final double HEIGHT = Screen.getPrimary().getBounds().getHeight() * 0.5;
 
 	//user input
 	private Set<KeyCode> keysPressed = new HashSet<>();
@@ -48,9 +48,9 @@ public class Main extends Application
 	
 	//game objects
 	private Player player;
-	private List<Enemy> enemies = new ArrayList<>();
-	private List<AmmoPU> ammoPUs = new ArrayList<>();
-	private List<WeaponPU> weaponPUs = new ArrayList<>();
+	private ArrayList<Enemy> enemies = new ArrayList<>();
+	private ArrayList<AmmoPU> ammoPUs = new ArrayList<>();
+	private ArrayList<WeaponPU> weaponPUs = new ArrayList<>();
 	
 
 
@@ -107,14 +107,22 @@ public class Main extends Application
 	
 	private void addAmmo()
 	{
-		//ammoPUs.add(new AmmoPU(100, 100, 1, 10, Color.MEDIUMPURPLE));
-		ammoPUs.add(new AmmoPU(100, 100, 2, 10, Color.MEDIUMPURPLE));
+//		ammoPUs.add(new AmmoPU(100, 100, 0, 10, Color.MEDIUMPURPLE));
+//		ammoPUs.add(new AmmoPU(100, 100, 1, 10, Color.MEDIUMPURPLE));
+//		ammoPUs.add(new AmmoPU(100, 100, 2, 10, Color.MEDIUMPURPLE));
+		ammoPUs.add(new AmmoPU(100, 100, 3, 10, Color.MEDIUMPURPLE));
+
+
 	}
 	
 	private void addWeapons()
 	{
-		weaponPUs.add(new WeaponPU(WIDTH/2, HEIGHT/2, 1, player, Color.rgb(150, 20, 150)));
-		weaponPUs.add(new WeaponPU(WIDTH/3, HEIGHT/3, 2, player, Color.rgb(150, 20, 100)));
+//		weaponPUs.add(new WeaponPU(WIDTH/2, HEIGHT/2, 0, 10, Color.rgb(150, 20, 150)));
+//		weaponPUs.add(new WeaponPU(WIDTH/3 + 200, HEIGHT/3 + 200, 1, 10, Color.rgb(0, 0, 0)));
+//		weaponPUs.add(new WeaponPU(WIDTH/3, HEIGHT/3, 2, 10, Color.rgb(255, 255, 255)));
+		weaponPUs.add(new WeaponPU(100, 100, 3, 10, Color.rgb(255, 255, 255)));
+
+
 
 		
 	}
@@ -130,44 +138,14 @@ public class Main extends Application
 		this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.rgb(255, (int)(Math.random()*255), 0)));
 	}
 
-	private void handleKeyPressed(KeyEvent event)
-	{
-		keysPressed.add(event.getCode());
-	}
-
-	private void handleKeyReleased(KeyEvent event)
-	{
-		keysPressed.remove(event.getCode());
-	}
-
-	private void handleMousePressed(MouseEvent event)
-	{
-		isShooting = true;
-		updateMousePosition(event);
-	}
-
-	private void handleMouseDragged(MouseEvent event)
-	{
-		isShooting = true;
-		updateMousePosition(event);
-	}
-
-	private void handleMouseReleased(MouseEvent event)
-	{
-		isShooting = false;
-	}
-
-	private void updateMousePosition(MouseEvent event)
-	{
-		mouseX = event.getSceneX();
-		mouseY = event.getSceneY();
-	}
+	
 
 	private void update(GraphicsContext gc)
 	{
 		gc.clearRect(0, 0, WIDTH, HEIGHT);
 		gc.setFill(Color.TAN);
 		gc.fillRect(0, 0, WIDTH, HEIGHT);
+		
 		this.player.render(gc);
 		
 		for (AmmoPU a : ammoPUs)
@@ -197,20 +175,27 @@ public class Main extends Application
 		{
 			if (g.isPickedUp())
 			{
+				
 				for (Bullet b : g.getBullets())
 				{
-					for (Enemy e : enemies)
+					if (g.isSplashGun())
 					{
-						if (b.checkCollision(e))
+						if (b.damageEnemies(enemies));
+						bulletsToRemove.add(b);
+
+						
+					}
+					else
+					{
+						for (Enemy e : enemies)
 						{
-							System.out.println("HIT ENEMY");
-							bulletsToRemove.add(b);
-							e.setHp(e.getHp() - 10);
-							if (e.getHp() <= 0)
+							if (b.checkCollision(e))
 							{
-								enemiesToRemove.add(e);
+								System.out.println("HIT ENEMY");
+								bulletsToRemove.add(b);
+								b.damageEnemy(e);	
+			
 							}
-		
 						}
 					}
 				}	
@@ -232,6 +217,12 @@ public class Main extends Application
 
 			}
 			e.getProjectiles().removeAll(projectilesToRemove);
+			
+			//checks if enemy is dead, if so remov them
+			if (e.getHp() <= 0)
+			{
+				enemiesToRemove.add(e);
+			}
 		}
 
 		
@@ -240,6 +231,7 @@ public class Main extends Application
 
 		for (Enemy e : enemies)
 		{
+			
 			if (player.isAlive())
 			{
 				e.move(player);
@@ -250,8 +242,11 @@ public class Main extends Application
 		
 		if (player.getEquippedWeapon() != null)
 		{
+			player.getEquippedWeapon().fireCooldown();
 			player.getEquippedWeapon().render(gc, player, Color.LIGHTGRAY);
 		}
+		
+		
 		
 		if (player.getHp() <= 0)
 		{
@@ -260,7 +255,8 @@ public class Main extends Application
 		}
 		else
 		{
-
+			
+			//player movement
 			if (keysPressed.contains(KeyCode.W))
 			{
 				this.player.move(0, -player.getSpeed());
@@ -277,24 +273,84 @@ public class Main extends Application
 			{
 				this.player.move(player.getSpeed(), 0);
 			}
+			
+			//player sprint
+			if (keysPressed.contains(KeyCode.SHIFT))
+			{
+				player.setSpeed(5);
+			}
+			else
+			{
+				player.setSpeed(3);
+			}
+			
+			//weapon switching
 			if(keysPressed.contains(KeyCode.DIGIT1))
 			{
-				System.out.println(this.player.getGuns().get(1));
 				if (this.player.getGuns().get(0).isPickedUp())
 				this.player.swapWeapon(0);
 			}
 			if(keysPressed.contains(KeyCode.DIGIT2))
 			{
-				System.out.println(this.player.getGuns().get(1));
 				if (this.player.getGuns().get(1).isPickedUp())
 				this.player.swapWeapon(1);
 			}
+			if(keysPressed.contains(KeyCode.DIGIT3))
+			{
+				if (this.player.getGuns().get(3).isPickedUp())
+				this.player.swapWeapon(3);
+			}
+			if(keysPressed.contains(KeyCode.DIGIT4))
+			{
+				if (this.player.getGuns().get(4).isPickedUp())
+				this.player.swapWeapon(4);
+			}
+			
+			//player shooting
 			if (isShooting && player.getEquippedWeapon() != null)
 			{
 				this.player.getEquippedWeapon().shoot(player, mouseX, mouseY);
 			}
 		}
 
+	}
+	
+	private void handleKeyPressed(KeyEvent event)
+	{
+		keysPressed.add(event.getCode());
+	}
+
+	private void handleKeyReleased(KeyEvent event)
+	{
+		keysPressed.remove(event.getCode());
+	}
+
+	private void handleMousePressed(MouseEvent event)
+	{
+		isShooting = true;
+		if (player.getEquippedWeapon() != null)
+		player.getEquippedWeapon().setShooting(true);
+		updateMousePosition(event);
+	}
+
+	private void handleMouseDragged(MouseEvent event)
+	{
+		isShooting = true;
+		updateMousePosition(event);
+	}
+
+	private void handleMouseReleased(MouseEvent event)
+	{
+		isShooting = false;
+		if (player.getEquippedWeapon() != null)
+		player.getEquippedWeapon().setShooting(false);
+
+	}
+
+	private void updateMousePosition(MouseEvent event)
+	{
+		mouseX = event.getSceneX();
+		mouseY = event.getSceneY();
 	}
 
 }

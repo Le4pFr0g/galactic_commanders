@@ -1,4 +1,7 @@
-package weapons;
+package bullets;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import entity.Enemy;
 import entity.Player;
@@ -7,9 +10,11 @@ import javafx.scene.paint.Color;
 
 public class Bullet
 {
-	private double x, y, angle;
-	private double speed;
-	private final double width = 10;
+	protected double x;
+	protected double y;
+	protected double angle;
+	protected double speed;
+	protected final double width = 10;
 	
 
 
@@ -24,31 +29,7 @@ public class Bullet
 		this.speed = speed;
 		this.color = color;
 	}
-	
-	public double getWidth()
-	{
-		return width;
-	}
 
-	public double getX()
-	{
-		return x;
-	}
-
-	public void setX(double x)
-	{
-		this.x = x;
-	}
-
-	public double getY()
-	{
-		return y;
-	}
-
-	public void setY(double y)
-	{
-		this.y = y;
-	}
 
 	public boolean checkCollision(Enemy e)
 	{
@@ -80,7 +61,11 @@ public class Bullet
 		}
 	}
 
-	
+	public void damageEnemy(Enemy e)
+	{
+		e.setHp(e.getHp() - 10);
+		
+	}	
 
 	public void render(GraphicsContext gc)
 	{
@@ -90,5 +75,41 @@ public class Bullet
 		this.x += Math.cos(this.angle) * speed;
 		this.y += Math.sin(this.angle) * speed;
 	}
+	
+	public double getWidth()
+	{
+		return width;
+	}
+
+	public double getX()
+	{
+		return x;
+	}
+
+	public void setX(double x)
+	{
+		this.x = x;
+	}
+
+	public double getY()
+	{
+		return y;
+	}
+
+	public void setY(double y)
+	{
+		this.y = y;
+	}
+
+
+	public boolean damageEnemies(ArrayList<Enemy> enemies)
+	{
+		//stub to override
+		System.out.println("TEST: DON'T PRINT Bullet.damageEnemies(List<Enemy> enemies)");
+		return false;
+		
+	}
+
+
 
 }
