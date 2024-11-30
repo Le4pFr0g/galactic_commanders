@@ -40,7 +40,6 @@ public class Main extends Application
 	//system controls
     private final double WIDTH = Screen.getPrimary().getBounds().getWidth() * 0.9;
     private final double HEIGHT = Screen.getPrimary().getBounds().getHeight() * 0.9;
-    private static final int SPEED = 4;
 
 	//user input
 	private Set<KeyCode> keysPressed = new HashSet<>();
@@ -108,14 +107,14 @@ public class Main extends Application
 	
 	private void addAmmo()
 	{
-		ammoPUs.add(new AmmoPU(100, 100, 1, 10, Color.MEDIUMPURPLE));
-		ammoPUs.add(new AmmoPU(100, 100, 0, 10, Color.MEDIUMPURPLE));
+		//ammoPUs.add(new AmmoPU(100, 100, 1, 10, Color.MEDIUMPURPLE));
+		ammoPUs.add(new AmmoPU(100, 100, 2, 10, Color.MEDIUMPURPLE));
 	}
 	
 	private void addWeapons()
 	{
-		weaponPUs.add(new WeaponPU(WIDTH/2, HEIGHT/2, 1, Color.rgb(150, 20, 150)));
-		weaponPUs.add(new WeaponPU(WIDTH/3, HEIGHT/3, 2, Color.rgb(150, 20, 100)));
+		weaponPUs.add(new WeaponPU(WIDTH/2, HEIGHT/2, 1, player, Color.rgb(150, 20, 150)));
+		weaponPUs.add(new WeaponPU(WIDTH/3, HEIGHT/3, 2, player, Color.rgb(150, 20, 100)));
 
 		
 	}
@@ -175,7 +174,7 @@ public class Main extends Application
 		{
 			a.checkCollision(player);
 			a.render(gc);
-		}
+		} 
 		
 		List<WeaponPU> weaponPUsToRemove = new ArrayList<>();
 		for (WeaponPU w : weaponPUs)
@@ -196,22 +195,25 @@ public class Main extends Application
 		//check if any player bullet hits enemy
 		for (Gun g : player.getGuns())
 		{
-			for (Bullet b : g.getBullets())
+			if (g.isPickedUp())
 			{
-				for (Enemy e : enemies)
+				for (Bullet b : g.getBullets())
 				{
-					if (b.checkCollision(e))
+					for (Enemy e : enemies)
 					{
-						System.out.println("HIT ENEMY");
-						bulletsToRemove.add(b);
-						e.setHp(e.getHp() - 10);
-						if (e.getHp() <= 0)
+						if (b.checkCollision(e))
 						{
-							enemiesToRemove.add(e);
+							System.out.println("HIT ENEMY");
+							bulletsToRemove.add(b);
+							e.setHp(e.getHp() - 10);
+							if (e.getHp() <= 0)
+							{
+								enemiesToRemove.add(e);
+							}
+		
 						}
-	
 					}
-				}
+				}	
 			}
 			g.getBullets().removeAll(bulletsToRemove);
 		}
@@ -261,31 +263,31 @@ public class Main extends Application
 
 			if (keysPressed.contains(KeyCode.W))
 			{
-				this.player.move(0, -SPEED);
+				this.player.move(0, -player.getSpeed());
 			}
 			if (keysPressed.contains(KeyCode.S))
 			{
-				this.player.move(0, SPEED);
+				this.player.move(0, player.getSpeed());
 			}
 			if (keysPressed.contains(KeyCode.A))
 			{
-				this.player.move(-SPEED, 0);
+				this.player.move(-player.getSpeed(), 0);
 			}
 			if (keysPressed.contains(KeyCode.D))
 			{
-				this.player.move(SPEED, 0);
+				this.player.move(player.getSpeed(), 0);
 			}
 			if(keysPressed.contains(KeyCode.DIGIT1))
 			{
-				System.out.println(this.player.getGuns().get(0));
-				if (this.player.getGuns().get(0) != null)
-				this.player.swapWeapon(this.player.getGuns().get(0));
+				System.out.println(this.player.getGuns().get(1));
+				if (this.player.getGuns().get(0).isPickedUp())
+				this.player.swapWeapon(0);
 			}
 			if(keysPressed.contains(KeyCode.DIGIT2))
 			{
 				System.out.println(this.player.getGuns().get(1));
-				if (this.player.getGuns().get(1) != null)
-				this.player.swapWeapon(this.player.getGuns().get(1));
+				if (this.player.getGuns().get(1).isPickedUp())
+				this.player.swapWeapon(1);
 			}
 			if (isShooting && player.getEquippedWeapon() != null)
 			{

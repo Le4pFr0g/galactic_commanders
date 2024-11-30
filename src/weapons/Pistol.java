@@ -6,7 +6,7 @@ public class Pistol extends Gun
 	
 	//this should allow the pistol to fire every 15 frames
 	static int fireRate = 15;
-	static int bSpeed = 2;
+	static int bSpeed = 20;
 	static int defaultAmmo = 10;
 	
 

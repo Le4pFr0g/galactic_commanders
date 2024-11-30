@@ -7,7 +7,6 @@ public class AmmoPU extends PickUp
 {
 	private int weaponID;
 	private int value;
-	private Color color;
 
 	public AmmoPU(double x, double y, int weaponID, int value, Color color)
 	{

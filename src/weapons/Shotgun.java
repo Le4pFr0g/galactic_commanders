@@ -29,7 +29,7 @@ public class Shotgun extends Gun
 				double a = angle - Math.toRadians(10);
 				for (int i = 0; i < numOfShells; i++)
 				{
-					bulletSpeed = (int)(Math.random() * 5) + 1;
+					//bulletSpeed = (int)(Math.random() * 3) + 3;
 					a = a + Math.toRadians(5);
 					Bullet b = new Bullet(a, p.getX() + WIDTH / 2, p.getY() + WIDTH / 2, bulletSpeed, Color.GRAY);
 					this.bullets.add(b);

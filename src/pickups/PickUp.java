@@ -10,7 +10,6 @@ public class PickUp
 	private double width = 30;
 	private Color color;
 	
-
 	public PickUp(double x, double y, Color color)
 	{
 		this.x = x;

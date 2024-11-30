@@ -9,14 +9,26 @@ import javafx.scene.text.Font;
 import weapons.Bullet;
 import weapons.Gun;
 import weapons.Pistol;
+import weapons.Shotgun;
 
 public class Player
 {
 	private double x, y;
+	private int hp;
+	public double getSpeed()
+	{
+		return speed;
+	}
+
+	public void setSpeed(double speed)
+	{
+		this.speed = speed;
+	}
+
+	private double speed = 3;
 	private final double width = 50;
 	private List<Gun> guns = new ArrayList<>();
 	private Gun equippedWeapon;
-	private int hp;
 	private boolean isAlive = true;
 	
 	public Player(double x, double y, int hp)
@@ -30,6 +42,9 @@ public class Player
 //
 //		equippedWeapon = guns.get(0);
 		
+		guns.add(new Pistol());
+		guns.add(new Shotgun());
+		
 	}
 
 	public void move(double x, double y)
@@ -38,11 +53,11 @@ public class Player
 		this.y += y;
 	}
 	
-	public void swapWeapon(Gun g)
+	public void swapWeapon(int index)
 	{
-		if (guns.contains(g))
+		if (guns.get(index).isPickedUp())
 		{
-			equippedWeapon = g;
+			equippedWeapon = guns.get(index);
 		}
 		
 	}

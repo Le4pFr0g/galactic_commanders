@@ -10,13 +10,14 @@ public class WeaponPU extends PickUp
 	private int weaponID;
 	
 	
-	public WeaponPU(double x, double y, int weaponID, Color color)
+	public WeaponPU(double x, double y, int weaponID, Player p, Color color)
 	{
 		
 		super(x, y, color);
 		this.weaponID = weaponID;
+		
 
-		assignWeapon(weaponID);
+		//assignWeapon(weaponID);
 		
 	}
 	
@@ -37,17 +38,15 @@ public class WeaponPU extends PickUp
 //		}
 		
 		
+		weapon.setPickedUp(true);
+		
 	}
 
 	protected void onCollide(Player p)
 	{
+		p.getGuns().get(weaponID).setPickedUp(true);
+		p.swapWeapon(weaponID);
 		
-		//p.getGuns().add(weaponID, weapon);
-		p.getGuns().add(weapon);
-		if (p.getGuns().contains(weapon))
-		{
-			p.swapWeapon(weapon);
-		}
 	}
 	
 	

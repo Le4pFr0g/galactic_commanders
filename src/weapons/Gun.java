@@ -15,6 +15,7 @@ public class Gun
 	protected int shootingCooldown;
 	protected int bulletSpeed;
 	protected int fireRate;
+	protected boolean pickedUp = false;
 
 	protected int ammo;
 
@@ -71,5 +72,15 @@ public class Gun
 	public void setAmmo(int ammo)
 	{
 		this.ammo = ammo;
+	}
+	
+	public boolean isPickedUp()
+	{
+		return pickedUp;
+	}
+
+	public void setPickedUp(boolean pickedUp)
+	{
+		this.pickedUp = pickedUp;
 	}
 }
