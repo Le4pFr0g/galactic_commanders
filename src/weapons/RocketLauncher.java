@@ -11,7 +11,7 @@ public class RocketLauncher extends Gun
 	static final int damage = 5;
 	
 	static int fireRate = 25;
-	static int bSpeed = 5;
+	static int bSpeed = 3;
 	static int defaultAmmo = 10;
 	
 	public RocketLauncher()

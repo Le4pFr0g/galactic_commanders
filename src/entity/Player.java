@@ -9,48 +9,166 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import weapons.*;
 
-public class Player
+public class Player extends MovingObject
 {
-	private double x, y;
-	private int hp;
 
-	private double speed = 3;
-	private final double width = 50;
+	private static final double defaultWidth = 50;
 	private List<Gun> guns = new ArrayList<>();
 	private Gun equippedWeapon;
 	private boolean isAlive = true;
-	
+
 	public Player(double x, double y, int hp)
 	{
-		this.x = x;
-		this.y = y;
-		this.hp = hp;
+		//default speed is 3
+		super(x, y, defaultWidth, hp, 3);
 
-//		guns.add(new Gun(15, 2, 10));
-//		guns.add(new Gun(40, 7, 10));
-//
-//		equippedWeapon = guns.get(0);
-		
+
+
 		guns.add(0, new Pistol());
 		guns.add(1, new Shotgun());
 		guns.add(2, new Chaingun());
 		guns.add(3, new RocketLauncher());
-		
+
 	}
 
-	public void move(double x, double y)
+	public void move(double x, double y, double sW, double sH, int cameraDistance, ArrayList<Enemy> enemies)
 	{
-		this.x += x;
-		this.y += y;
+		int side = this.enemeySideFinder(enemies);
+		//System.out.println(side);
+		
+		moveX(x, sW, cameraDistance, side);
+		moveY(y, sH, cameraDistance, side);
+
+
 	}
 	
+	private void moveX(double x, double sW, int cameraDistance, int side)
+	{
+		//moving right
+		//border
+		if (this.x + x + width > sW)
+		{
+			this.x = sW - width;
+		}
+		//enemy
+		if (side == 4)
+		{
+			this.x = this.x - this.speed;
+		}
+		
+		//moving left
+		//border
+		if (this.x + x < 0)
+		{
+			this.x = 0;
+		}
+		
+		//enemy
+		if (side == 2)
+		{
+			this.x = this.x + this.speed;
+		}
+		
+		// all checks fail, move player like normal
+		else
+		{
+			this.x += x;
+		}
+	}
+	
+	private void moveY(double y, double sH, int cameraDistance, int side)
+	{
+		//moving down
+		//border
+		if (this.y + width > sH)
+		{
+			this.y = sH - width;
+		}
+		//enemy
+		if (side == 1)
+		{
+			this.y = this.y - this.speed;
+		}
+		
+		//moving up
+		//border
+		if (this.y < 0)
+		{
+			this.y = 0;
+		}
+		
+		//enemy
+		if (side == 3)
+		{
+			this.y = this.y + this.speed;
+		}
+		
+		// all checks fail, move player like normal
+		else
+		{
+			this.y += y;
+		}
+	}
+
+//returns 1 for top
+//returns 2 for right
+//returns 3 for bottom
+//returns 4 for left
+	private int enemeySideFinder(ArrayList<Enemy> enemies)
+	{
+
+		//Enemy enemy = enemies.get(0);
+
+		for (Enemy enemy : enemies)
+		{
+			boolean isColliding = 	this.x < enemy.getX() + enemy.getWidth() &&
+									this.x + this.width > enemy.getX() && 
+									this.y < enemy.getY() + enemy.getWidth() &&
+									this.y + this.width > enemy.getY();
+			if (!isColliding)
+			{
+				continue;
+			}
+			
+			
+			// Calculate overlap distances
+			double topOverlap = Math.abs(this.y + this.width - enemy.getY());
+			double bottomOverlap = Math.abs(enemy.getY() + enemy.getWidth() - this.y);
+			double leftOverlap = Math.abs(this.x + this.width - enemy.getX());
+			double rightOverlap = Math.abs(enemy.getX() + enemy.getWidth() - this.x);
+	
+			// Find the side with the smallest overlap
+			double minOverlap = Math.min(Math.min(topOverlap, bottomOverlap), Math.min(leftOverlap, rightOverlap));
+	
+			if (minOverlap == topOverlap)
+			{
+				return 1; // Top
+			}
+			else if (minOverlap == rightOverlap)
+			{
+				return 2; // Right
+			}
+			else if (minOverlap == bottomOverlap)
+			{
+				return 3; // Bottom
+			}
+			else if (minOverlap == leftOverlap)
+			{
+				return 4; // Left
+			}
+		}
+
+		return 0; // Fallback (no side detected)
+
+	}
+
 	public void swapWeapon(int index)
 	{
 		if (guns.get(index).isPickedUp())
 		{
 			equippedWeapon = guns.get(index);
 		}
-		
+
 	}
 
 	public void kill(GraphicsContext gc, double screenH, double screenW)
@@ -59,41 +177,40 @@ public class Player
 		gc.setFont(Font.font(60));
 		gc.setFill(Color.RED);
 		String gameOver = "GAME OVER";
-		double offset = gameOver.length()/2;
-		gc.fillText(gameOver, screenW/2 - 30*offset, screenH/2);
+		double offset = gameOver.length() / 2;
+		gc.fillText(gameOver, screenW / 2 - 30 * offset, screenH / 2);
 		gc.setFont(Font.getDefault());
 		isAlive = false;
 	}
-	
 
 	public void render(GraphicsContext gc)
 	{
 
-		//display player box
+		// display player box
 		gc.setFill(Color.GREEN);
 		gc.fillRect(this.x, this.y, width, width);
 
-		//display health
+		// display health
 		gc.fillText(String.valueOf(this.hp), x + width, y);
-		
-		//render smaller red square on player if dead
+
+		// render smaller red square on player if dead
 		if (!isAlive)
 		{
 			gc.setFill(Color.RED);
-			double centerX = x + width/2;
-			double centerY = y + width/2;
-			//width of the inner square is width/2, divide that by 2 to get the location of origin
-			double inX = centerX - ((width/2)/2);
-			double inY = centerY - ((width/2)/2);
-			gc.fillRect(inX, inY , width/2, width/2);
+			double centerX = x + width / 2;
+			double centerY = y + width / 2;
+			// width of the inner square is width/2, divide that by 2 to get the location of
+			// origin
+			double inX = centerX - ((width / 2) / 2);
+			double inY = centerY - ((width / 2) / 2);
+			gc.fillRect(inX, inY, width / 2, width / 2);
 		}
 
-		
 		if (equippedWeapon != null)
 		{
-			//render ammo for equipped weapon
+			// render ammo for equipped weapon
 			gc.fillText(String.valueOf(equippedWeapon.getAmmo()), x - 15, y + width);
-			//render every bullet of every gun.
+			// render every bullet of every gun.
 			for (Gun g : guns)
 			{
 				for (Bullet element : g.getBullets())
@@ -104,16 +221,8 @@ public class Player
 		}
 
 	}
-	
-	public double getSpeed()
-	{
-		return speed;
-	}
 
-	public void setSpeed(double speed)
-	{
-		this.speed = speed;
-	}
+	
 
 	public boolean isAlive()
 	{
@@ -123,21 +232,6 @@ public class Player
 	public void setAlive(boolean isAlive)
 	{
 		this.isAlive = isAlive;
-	}
-
-	public int getHp()
-	{
-		return hp;
-	}
-
-	public void setHp(int hp)
-	{
-		this.hp = hp;
-	}
-
-	public double getWidth()
-	{
-		return width;
 	}
 
 	public Gun getEquippedWeapon()
@@ -160,38 +254,4 @@ public class Player
 		this.guns = guns;
 	}
 
-	public double getX()
-	{
-		return x;
-	}
-
-	public void setX(double x)
-	{
-		this.x = x;
-	}
-
-	public double getY()
-	{
-		return y;
-	}
-
-	public void setY(double y)
-	{
-		this.y = y;
-	}
-
 }
-
-//public double calcAngle(double obj1X, double obj2X, double obj1Y, double obj2Y)
-//{
-//	double xDis = obj2X - obj1X;
-//	double yDis = obj2Y - obj1Y;
-//
-//
-//	double angle = Math.atan2(yDis, xDis);
-//
-//
-//	angle = Math.toDegrees(angle);
-//
-//	return angle;
-//}

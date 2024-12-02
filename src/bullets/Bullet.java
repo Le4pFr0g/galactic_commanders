@@ -19,7 +19,7 @@ public class Bullet
 
 
 
-	private Color color;
+	protected Color color;
 	
 	public Bullet(double angle, double x, double y, double speed, Color color)
 	{
@@ -35,7 +35,7 @@ public class Bullet
 	{
 		double dx = this.x - e.getX();
 		double dy = this.y - e.getY();
-		float distance = (float) Math.sqrt(dx * dx + dy * dy);
+		double distance = (double) Math.sqrt(dx * dx + dy * dy);
 		if (distance < (e.getWidth() + width))
 		{
 			return true;
@@ -50,7 +50,7 @@ public class Bullet
 	{
 		double dx = this.x - p.getX();
 		double dy = this.y - p.getY();
-		float distance = (float) Math.sqrt(dx * dx + dy * dy);
+		double distance = (double) Math.sqrt(dx * dx + dy * dy);
 		if (distance < (p.getWidth() + width))
 		{
 			return true;
@@ -65,15 +65,20 @@ public class Bullet
 	{
 		e.setHp(e.getHp() - 10);
 		
-	}	
+	}
+	
+	public void updatePos()
+	{
+		this.x += Math.cos(this.angle) * speed;
+		this.y += Math.sin(this.angle) * speed;
+	}
 
 	public void render(GraphicsContext gc)
 	{
 		gc.setFill(this.color);
 		gc.fillOval(this.x, this.y, width, width);
+		
 
-		this.x += Math.cos(this.angle) * speed;
-		this.y += Math.sin(this.angle) * speed;
 	}
 	
 	public double getWidth()

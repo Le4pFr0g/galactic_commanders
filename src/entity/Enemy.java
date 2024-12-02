@@ -8,11 +8,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-public class Enemy
+public class Enemy extends MovingObject
 {
-	private double x, y;
-	private int hp;
-	private double speed = 2;
 	private int shootingCooldown = 50;
 	private List<Bullet> projectiles = new ArrayList<>();
 	private int projectileSpeed;
@@ -20,17 +17,18 @@ public class Enemy
 	
 
 	// private Player player;
-	private final double width = 50;
+	private static final double defaultWidth = 50;
+	private static final double defaultSpeed = 2;
+	
+	private boolean touchingWall = false;
+
 
 
 
 
 	public Enemy(Player p, double x, double y, int hp, int projectileSpeed, Color color)
 	{
-		// this.player = p;
-		this.x = x;
-		this.y = y;
-		this.hp = hp;
+		super(x, y, defaultWidth, hp, defaultSpeed);
 		this.projectileSpeed = projectileSpeed;
 		this.color = color;
 		
@@ -39,31 +37,154 @@ public class Enemy
 	
 	public void move(Player p)
 	{
-		double tolerence = 2;
-		if (Math.abs(p.getX() - this.x) < tolerence)
+		if (!touchingWall)
 		{
-		}
-		else if (p.getX() > this.x)
-		{
-			this.x += speed;
-		}
-		else
-		{
-			this.x -= speed;
-		}
+			//System.out.println("move(): " + x + ", " + y);
 
-		if (Math.abs(p.getY() - this.y) < tolerence)
-		{
-		}
-		else if (p.getY() > this.y)
-		{
-			this.y += speed;
-		}
-		else
-		{
-			this.y -= speed;
+			//tolerence is how many pixels away the enemy will move to
+			double tolerence = 75;
+			if (Math.abs(p.getX() - this.x) < tolerence)
+			{
+			}
+			else if (p.getX() > this.x)
+			{
+				this.x += speed;
+			}
+			else
+			{
+				this.x -= speed;
+			}
+	
+			if (Math.abs(p.getY() - this.y) < tolerence)
+			{
+			}
+			else if (p.getY() > this.y)
+			{
+				this.y += speed;
+			}
+			else
+			{
+				this.y -= speed;
+			}
 		}
 	}
+
+
+	public void moveAlongWall(int side, Wall w)
+	{
+		// 1 for top
+		// 2 for right
+		// 3 for bottom
+		// 4 for left
+		
+		//System.out.println("moveAwayFromWall(): " + side);
+		
+		if (side == 2 || side == 4)
+		{
+			if (w.y + w.height/2 > this.y + this.width)
+			{
+				moveAlongVerticalWall(w, -1);
+			}
+			else
+			{
+				System.out.println("Move down");
+				moveAlongVerticalWall(w, -1);
+			}
+				
+		}
+		else if (side == 1 || side == 3)
+		{
+			if (w.x + w.width/2 > this.x + this.width)
+			{
+				moveAlongHorizontalWall(w, -1);
+			}
+			else
+			{
+				moveAlongHorizontalWall(w, 1);
+			}
+		}
+		else
+		{
+			System.out.println("BIG OOPS");
+		}
+	}
+	
+
+
+	private void moveAlongVerticalWall(Wall w, int direction)
+	{
+		//this.printPos();
+				
+		double amount = (w.y - this.y - w.height);
+		
+		System.out.println("Y: " + amount*direction);
+
+		System.out.println("Y = " + this.y);
+		this.y += direction * speed;
+		System.out.println("Y = " + this.y);
+
+		
+//		double tolerence = 50;
+//
+//		System.out.println("2: " + (Math.abs(w.getY() - this.y) < tolerence));
+//		System.out.println("2: " + (w.getX() - this.x));
+//		
+//
+//		System.out.println();
+//
+//		if (Math.abs(w.getY() - this.y) < tolerence)
+//		{
+//		}
+//		else if (w.getY() > this.y)
+//		{
+//			this.y += speed;
+//		}
+//		else
+//		{
+//			this.y -= speed;
+//		}
+		
+		
+		
+	}
+	
+	private void moveAlongHorizontalWall(Wall w, int direction)
+	{
+		
+		double amount = ((w.width + this.width) - w.width + w.x - this.x - this.width);
+		
+		System.out.println("X: " + amount*direction);
+
+		
+		this.x += direction * amount;
+//		double tolerence = 50;
+//		
+//		System.out.println("1: " + (Math.abs(w.getX() - this.x) < tolerence));
+//		System.out.println("1: " + (w.getX() - this.x));
+//		
+//
+//		
+//		System.out.println();
+//		if (Math.abs(w.getX() - this.x) < tolerence)
+//		{
+//		}
+//		else if (w.getX() > this.x)
+//		{
+//			this.x += speed;
+//		}
+//		else
+//		{
+//			this.x -= speed;
+//		}
+	
+		
+	}
+	
+	private void printPos()
+	{
+		System.out.println(x + ", " + y + "\t");
+	}
+
 
 	public void attack(Player p)
 	{
@@ -77,23 +198,82 @@ public class Enemy
 
 	}
 
-	private void onHit()
+	public void checkCollision(Player p)
 	{
-		this.setHp(hp - 10);
-	}
+		int side = sideFinder(p);
+		System.out.println(side);
 
-	public void checkCollision(Bullet b)
-	{
-		double dx = this.x - b.getX();
-		double dy = this.y - b.getY();
-		double distance = (double) Math.sqrt(dx * dx + dy * dy);
-		//if the distance from the bullet to the enemy is less than the width of the enemy
-		if (distance < (b.getWidth() + this.width))
+		
+		switch (side)
 		{
-			onHit();
+			case 0: 
+				break;
+			case 1:
+				p.setY(p.getY() - p.getSpeed());
+				break;
+			case 2:
+				p.setX(p.getX() - p.getSpeed());
+				break;
+			case 3: 
+				p.setY(p.getY() + p.getSpeed());
+				break;
+			case 4:
+				p.setX(p.getX() + p.getSpeed());
+				break;
+			default: break;
 		}
+		
 	}
 	
+	
+	//same as in player class
+//returns 1 for top
+//returns 2 for right
+//returns 3 for bottom
+//returns 4 for left
+	private int sideFinder(Player p)
+	{
+		boolean isColliding = 	this.x < p.getX() + p.getWidth() &&
+								this.x + this.width > p.getX() && 
+								this.y < p.getY() + p.getWidth() &&
+								this.y + this.width > p.getY();
+		if (!isColliding)
+		{
+			return 0;
+		}
+		
+		
+		// Calculate overlap distances
+		double topOverlap = Math.abs(this.y + this.width - p.getY());
+		double bottomOverlap = Math.abs(p.getY() + p.getWidth() - this.y);
+		double leftOverlap = Math.abs(this.x + this.width - p.getX());
+		double rightOverlap = Math.abs(p.getX() + p.getWidth() - this.x);
+
+		// Find the side with the smallest overlap
+		double minOverlap = Math.min(Math.min(topOverlap, bottomOverlap), Math.min(leftOverlap, rightOverlap));
+
+		if (minOverlap == topOverlap)
+		{
+			return 1; // Top
+		}
+		else if (minOverlap == rightOverlap)
+		{
+			return 2; // Right
+		}
+		else if (minOverlap == bottomOverlap)
+		{
+			return 3; // Bottom
+		}
+		else if (minOverlap == leftOverlap)
+		{
+			return 4; // Left
+		}
+		
+
+		return 0; // Fallback (no side detected)
+
+	}
+
 	public List<Bullet> getProjectiles()
 	{
 		return projectiles;
@@ -104,41 +284,18 @@ public class Enemy
 		this.projectiles = projectiles;
 	}
 	
-	public double getWidth()
+	public boolean isTouchingWall()
 	{
-		return width;
+		return touchingWall;
 	}
 
 
-	public int getHp()
+	public void setTouchingWall(boolean touchingWall)
 	{
-		return hp;
+		this.touchingWall = touchingWall;
 	}
-
-	public void setHp(int hp)
-	{
-		this.hp = hp;
-	}
-
-	public double getX()
-	{
-		return x;
-	}
-
-	public void setX(double x)
-	{
-		this.x = x;
-	}
-
-	public double getY()
-	{
-		return y;
-	}
-
-	public void setY(double y)
-	{
-		this.y = y;
-	}
+	
+	
 
 	public double calcAngle(double obj1X, double obj2X, double obj1Y, double obj2Y)
 	{
