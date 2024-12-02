@@ -21,14 +21,20 @@ public class Wall
 		
 	}
 	
-	public void render(GraphicsContext gc)
+	public void render(GraphicsContext gc, double sW, double sH)
 	{
-		gc.setFill(Color.BLACK);
-		gc.setLineWidth(2);
-		gc.strokeRect(this.x, this.y, width, height);
-		gc.setFill(this.color);
-		gc.fillRect(this.x, this.y, width, height);
-		
+		boolean shouldRender = 	this.x > 0 &&
+								this.x < sW &&
+								this.y > 0 &&
+								this.y < sH;
+		if (shouldRender)
+		{
+			gc.setFill(Color.BLACK);
+			gc.setLineWidth(2);
+			gc.strokeRect(this.x, this.y, width, height);
+			gc.setFill(this.color);
+			gc.fillRect(this.x, this.y, width, height);
+		}
 
 	}
 	

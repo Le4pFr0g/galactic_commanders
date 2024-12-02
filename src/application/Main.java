@@ -9,9 +9,10 @@ import java.util.Random;
 import java.util.Set;
 
 import bullets.Bullet;
-import entity.Enemy;
 import entity.Player;
 import entity.Wall;
+import entity.enemies.Blob;
+import entity.enemies.Enemy;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
@@ -39,8 +40,8 @@ import weapons.Gun;
 public class Main extends Application
 {
 	//system controls
-    private final double WIDTH = Screen.getPrimary().getBounds().getWidth();// * 0.8;
-    private final double HEIGHT = Screen.getPrimary().getBounds().getHeight();// * 0.8;
+    private final double SCREEN_WIDTH = Screen.getPrimary().getBounds().getWidth();// * 0.5;
+    private final double SCREEN_HEIGHT = Screen.getPrimary().getBounds().getHeight();// * 0.5;
     private AnimationTimer gameLoop;
     private AnimationTimer inputHandler;
 	private int cameraDistance = 150;
@@ -71,7 +72,7 @@ public class Main extends Application
 		primaryStage.setTitle("Galactic Commanders");
 
 		StackPane pane = new StackPane();
-		Canvas canvas = new Canvas(WIDTH, HEIGHT);
+		Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 		canvas.setFocusTraversable(true);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		pane.getChildren().add(canvas);
@@ -97,7 +98,7 @@ public class Main extends Application
 			{
 				update(gc);
 				cameraUpdate(gc);
-				player.render(gc);
+				player.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			}
 		};
 		gameLoop.start();
@@ -107,10 +108,10 @@ public class Main extends Application
 		addWeapons();
 		addWalls();
 		
-	    System.out.println(WIDTH);
-	    System.out.println(HEIGHT);
+	    System.out.println(SCREEN_WIDTH);
+	    System.out.println(SCREEN_HEIGHT);
 
-		Scene scene = new Scene(pane, WIDTH, HEIGHT);
+		Scene scene = new Scene(pane, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		// Add key listeners to track pressed keys
 		scene.setOnKeyPressed(this::handleKeyPressed);
@@ -137,7 +138,7 @@ public class Main extends Application
 		//	walls.add(new Wall(WIDTH/4, 200, 50, 150, Color.GRAY));
 		
 		//for (int i = 400; i < WIDTH-200; i += 50)
-			walls.add(new Wall(400, HEIGHT/2, 350, 50, Color.GRAY));
+			walls.add(new Wall(400, SCREEN_HEIGHT/2, 350, 50, Color.GRAY));
 		
 		
 		
@@ -172,9 +173,13 @@ public class Main extends Application
 		Random random = new Random();
 //		double x = random.nextDouble() * WIDTH;
 //		double y = random.nextDouble() * HEIGHT;
-		double x = WIDTH /3;
-		double y = HEIGHT /3;
-		this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.RED));// Color.rgb(255, 0, (int)(Math.random()*255))));
+		double x = SCREEN_WIDTH /3;
+		double y = SCREEN_HEIGHT /3;
+		//this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.RED));// Color.rgb(255, 0, (int)(Math.random()*255))));
+		this.enemies.add(new Blob(this.player, x, y, 100, 5, Color.YELLOW));// Color.rgb(255, 0, (int)(Math.random()*255))));
+
+		
+		
 		//x = random.nextDouble() * WIDTH;
 		//y = random.nextDouble() * HEIGHT;
 //		x += 20;
@@ -193,22 +198,49 @@ public class Main extends Application
 
 	private void update(GraphicsContext gc)
 	{
-		gc.clearRect(0, 0, WIDTH, HEIGHT);
+		gc.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 		gc.setFill(Color.TAN);
-		gc.fillRect(0, 0, WIDTH, HEIGHT);
+		gc.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+		
+		List<Bullet> bulletsToRemove = new ArrayList<>();
+		List<Enemy> enemiesToRemove = new ArrayList<>();
+		List<Bullet> projectilesToRemove = new ArrayList<>();
 		
 		for (Wall w : walls)
 		{
-			w.render(gc);
+			w.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			w.checkCollision(player);
+			
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					if (w.checkCollision(b) != 0)
+					{
+						bulletsToRemove.add(b);
+						//System.out.println("BYE BULLET");
+					}
+				}
+				if (bulletsToRemove.size() > 0)
+				g.getBullets().remove(bulletsToRemove);
+			}
 			
 			for (Enemy e : enemies)
 			{
-				//System.out.println("w.collide");
 
 				//TO DO: improve path finding. check collision returns an int that can be used to determine where to go
 				w.checkCollision(e);
+				for (Bullet p : e.getProjectiles())
+				{
+					if (w.checkCollision(p) != 0)
+					{
+						projectilesToRemove.add(p);
+						//System.out.println("BYE PROJECTILE");
+					}
+				}
+				if (projectilesToRemove.size() > 0)
+					e.getProjectiles().remove(projectilesToRemove);
 
 			}
 		}
@@ -231,9 +263,7 @@ public class Main extends Application
 		}
 		weaponPUs.removeAll(weaponPUsToRemove);
 
-		List<Bullet> bulletsToRemove = new ArrayList<>();
-		List<Enemy> enemiesToRemove = new ArrayList<>();
-		List<Bullet> projectilesToRemove = new ArrayList<>();
+
 		
 		//check if any player bullet hits enemy
 		for (Gun g : player.getGuns())
@@ -266,7 +296,7 @@ public class Main extends Application
 							{
 								System.out.println("HIT ENEMY");
 								bulletsToRemove.add(b);
-								b.damageEnemy(e);	
+								b.damageEnemy(e, g.getDmg());	
 			
 							}
 						}
@@ -310,9 +340,9 @@ public class Main extends Application
 			if (player.isAlive())
 			{
 				e.move(player);
-				//e.attack(player);
+				e.attack(player);
 			}
-			e.render(gc);
+			e.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			e.isTouchingWall();
 		}
 		
@@ -325,15 +355,18 @@ public class Main extends Application
 
 	}
 	
+	
+	
+	
 	private void cameraUpdate(GraphicsContext gc)
 	{
-		System.out.println("TEST");
-		gc.setFill(Color.BLACK);
-		gc.fillRect(0, 0, cameraDistance, HEIGHT);
-		gc.fillRect(WIDTH-cameraDistance, 0, cameraDistance, HEIGHT);
-		
-		gc.fillRect(0, 0, WIDTH, cameraDistance);
-		gc.fillRect(0, HEIGHT-cameraDistance, WIDTH, cameraDistance);
+//		gc.setFill(Color.BLACK);
+//		
+//		gc.fillRect(0, 0, cameraDistance, HEIGHT);
+//		gc.fillRect(WIDTH-cameraDistance, 0, cameraDistance, HEIGHT);
+//		
+//		gc.fillRect(0, 0, WIDTH, cameraDistance);
+//		gc.fillRect(0, HEIGHT-cameraDistance, WIDTH, cameraDistance);
 
 
 		if (player.getX() < cameraDistance && keysPressed.contains(KeyCode.A))
@@ -363,9 +396,9 @@ public class Main extends Application
 			
 			
 		}
-		else if (player.getX() > WIDTH - cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.D))
+		else if (player.getX() > SCREEN_WIDTH - cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.D))
 		{
-			player.setX(WIDTH - cameraDistance - player.getWidth());
+			player.setX(SCREEN_WIDTH - cameraDistance - player.getWidth());
 
 			//weapon pick ups
 			//ammo pick ups
@@ -397,27 +430,6 @@ public class Main extends Application
 			
 			for (WeaponPU w : weaponPUs)
 			{
-				w.setY(w.getY() - player.getSpeed());
-			}
-			for (AmmoPU a : ammoPUs)
-			{
-				a.setY(a.getY() - player.getSpeed());
-			}
-			for (Enemy e : enemies)
-			{
-				e.setY(e.getY() - player.getSpeed());
-			}
-			for (Wall w : walls)
-			{
-				w.setY(w.getY() - player.getSpeed());
-			}
-		}
-		
-		else if (player.getY() > HEIGHT - cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.S))
-		{
-			player.setY(HEIGHT - cameraDistance - player.getWidth());
-			for (WeaponPU w : weaponPUs)
-			{
 				w.setY(w.getY() + player.getSpeed());
 			}
 			for (AmmoPU a : ammoPUs)
@@ -434,6 +446,27 @@ public class Main extends Application
 			}
 		}
 		
+		else if (player.getY() > SCREEN_HEIGHT - cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.S))
+		{
+			player.setY(SCREEN_HEIGHT - cameraDistance - player.getWidth());
+			for (WeaponPU w : weaponPUs)
+			{
+				w.setY(w.getY() - player.getSpeed());
+			}
+			for (AmmoPU a : ammoPUs)
+			{
+				a.setY(a.getY() - player.getSpeed());
+			}
+			for (Enemy e : enemies)
+			{
+				e.setY(e.getY() - player.getSpeed());
+			}
+			for (Wall w : walls)
+			{
+				w.setY(w.getY() - player.getSpeed());
+			}
+		}
+		
 		
 	}
 
@@ -441,7 +474,7 @@ public class Main extends Application
 	{
 		if (player.getHp() <= 0)
 		{
-			player.kill(gc, HEIGHT, WIDTH);
+			player.kill(gc, SCREEN_HEIGHT, SCREEN_WIDTH);
 
 		}
 		else
@@ -451,20 +484,20 @@ public class Main extends Application
 			if (keysPressed.contains(KeyCode.W))
 			{
 				//System.out.println(player.getX() + ", " + player.getY());
-				this.player.move(0, -player.getSpeed(), WIDTH, HEIGHT, cameraDistance, enemies);
+				this.player.move(0, -player.getSpeed(), SCREEN_WIDTH, SCREEN_HEIGHT, cameraDistance, enemies);
 
 			}
 			if (keysPressed.contains(KeyCode.S))
 			{
 				//System.out.println(player.getX() + ", " + player.getY());
 
-				this.player.move(0, player.getSpeed(), WIDTH, HEIGHT, cameraDistance, enemies);
+				this.player.move(0, player.getSpeed(), SCREEN_WIDTH, SCREEN_HEIGHT, cameraDistance, enemies);
 
 			}
 			if (keysPressed.contains(KeyCode.A))
 			{
 				//System.out.println(player.getX() + ", " + player.getY());
-				this.player.move(-player.getSpeed(), 0, WIDTH, HEIGHT, cameraDistance, enemies);
+				this.player.move(-player.getSpeed(), 0, SCREEN_WIDTH, SCREEN_HEIGHT, cameraDistance, enemies);
 
 
 			}
@@ -472,7 +505,7 @@ public class Main extends Application
 			{
 				//System.out.println(player.getX() + ", " + player.getY());
 
-				this.player.move(player.getSpeed(), 0, WIDTH, HEIGHT, cameraDistance, enemies);
+				this.player.move(player.getSpeed(), 0, SCREEN_WIDTH, SCREEN_HEIGHT, cameraDistance, enemies);
 
 			}
 			
@@ -539,7 +572,7 @@ public class Main extends Application
 	{
 		isShooting = true;
 		if (player.getEquippedWeapon() != null)
-		player.getEquippedWeapon().setShooting(true);
+			player.getEquippedWeapon().setShooting(true);
 		updateMousePosition(event);
 	}
 

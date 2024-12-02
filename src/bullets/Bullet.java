@@ -3,30 +3,22 @@ package bullets;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Enemy;
+import entity.MovingObject;
 import entity.Player;
+import entity.enemies.Enemy;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class Bullet
+public class Bullet extends MovingObject
 {
-	protected double x;
-	protected double y;
 	protected double angle;
-	protected double speed;
-	protected final double width = 10;
-	
-
-
-
+	protected static final double defaultWidth = 10;
 	protected Color color;
 	
 	public Bullet(double angle, double x, double y, double speed, Color color)
 	{
-		this.x = x;
-		this.y = y;
+		super(x, y, defaultWidth, speed);
 		this.angle = angle;
-		this.speed = speed;
 		this.color = color;
 	}
 
@@ -61,23 +53,34 @@ public class Bullet
 		}
 	}
 
-	public void damageEnemy(Enemy e)
+	public void damageEnemy(Enemy e, int dmg)
 	{
-		e.setHp(e.getHp() - 10);
+		e.setHp(e.getHp() - dmg);
 		
 	}
 	
 	public void updatePos()
 	{
-		this.x += Math.cos(this.angle) * speed;
-		this.y += Math.sin(this.angle) * speed;
+		this.x += Math.cos(angle) * speed;
+		this.y += Math.sin(angle) * speed;
+
 	}
 
-	public void render(GraphicsContext gc)
+	public void render(GraphicsContext gc, double sW, double sH)
 	{
-		gc.setFill(this.color);
-		gc.fillOval(this.x, this.y, width, width);
-		
+		boolean shouldRender = 	this.x > 0 &&
+				this.x < sW &&
+				this.y > 0 &&
+				this.y < sH;
+				
+		if (shouldRender)
+		{
+			gc.setFill(this.color);
+			gc.fillOval(this.x, this.y, width, width);
+			gc.setLineWidth(.75);
+			gc.setFill(color.rgb(50, 50, 50));
+			gc.strokeOval(this.x, this.y, width, width);
+		}
 
 	}
 	
@@ -86,25 +89,25 @@ public class Bullet
 		return width;
 	}
 
-	public double getX()
-	{
-		return x;
-	}
-
-	public void setX(double x)
-	{
-		this.x = x;
-	}
-
-	public double getY()
-	{
-		return y;
-	}
-
-	public void setY(double y)
-	{
-		this.y = y;
-	}
+//	public double getX()
+//	{
+//		return x;
+//	}
+//
+//	public void setX(double x)
+//	{
+//		this.x = x;
+//	}
+//
+//	public double getY()
+//	{
+//		return y;
+//	}
+//
+//	public void setY(double y)
+//	{
+//		this.y = y;
+//	}
 
 
 	public boolean damageEnemies(ArrayList<Enemy> enemies)

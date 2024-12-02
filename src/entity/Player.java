@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bullets.Bullet;
+import entity.enemies.Enemy;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -13,6 +14,7 @@ public class Player extends MovingObject
 {
 
 	private static final double defaultWidth = 50;
+    private int hp;
 	private List<Gun> guns = new ArrayList<>();
 	private Gun equippedWeapon;
 	private boolean isAlive = true;
@@ -20,15 +22,28 @@ public class Player extends MovingObject
 	public Player(double x, double y, int hp)
 	{
 		//default speed is 3
-		super(x, y, defaultWidth, hp, 3);
-
-
-
+		super(x, y, defaultWidth, 3);
+		this.hp = hp;
+		
+		addGunsToInventory();
+	}
+	
+	private void addGunsToInventory()
+	{
 		guns.add(0, new Pistol());
 		guns.add(1, new Shotgun());
 		guns.add(2, new Chaingun());
 		guns.add(3, new RocketLauncher());
+	}
 
+	public int getHp()
+	{
+		return hp;
+	}
+
+	public void setHp(int hp)
+	{
+		this.hp = hp;
 	}
 
 	public void move(double x, double y, double sW, double sH, int cameraDistance, ArrayList<Enemy> enemies)
@@ -183,9 +198,9 @@ public class Player extends MovingObject
 		isAlive = false;
 	}
 
-	public void render(GraphicsContext gc)
+	public void render(GraphicsContext gc, double sW, double sH)
 	{
-
+		
 		// display player box
 		gc.setFill(Color.GREEN);
 		gc.fillRect(this.x, this.y, width, width);
@@ -213,9 +228,9 @@ public class Player extends MovingObject
 			// render every bullet of every gun.
 			for (Gun g : guns)
 			{
-				for (Bullet element : g.getBullets())
+				for (Bullet b : g.getBullets())
 				{
-					element.render(gc);
+					b.render(gc, sW, sH);
 				}
 			}
 		}

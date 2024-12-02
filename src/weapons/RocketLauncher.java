@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 public class RocketLauncher extends Gun
 {
 	//full auto
-	static final int damage = 5;
+	static final int dmg = 20;
 	
 	static int fireRate = 25;
 	static int bSpeed = 3;
@@ -16,7 +16,7 @@ public class RocketLauncher extends Gun
 	
 	public RocketLauncher()
 	{
-		super(fireRate, bSpeed, defaultAmmo, true);
+		super(dmg, fireRate, bSpeed, defaultAmmo, true);
 
 	}
 	

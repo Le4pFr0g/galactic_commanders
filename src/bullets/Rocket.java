@@ -2,7 +2,7 @@ package bullets;
 
 import java.util.ArrayList;
 
-import entity.Enemy;
+import entity.enemies.Enemy;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -18,15 +18,22 @@ public class Rocket extends Bullet
 	}
 	
 	@Override
-	public void render(GraphicsContext gc)
+	public void render(GraphicsContext gc, double sW, double sH)
 	{
-		gc.setFill(this.color);
-		gc.fillOval(this.x, this.y, width, width);
-		
-		if (explode)
+		boolean shouldRender = 	this.x > 0 &&
+				this.x < sW &&
+				this.y > 0 &&
+				this.y < sH;
+		if (shouldRender)
 		{
-			explosion(gc);
-		
+			gc.setFill(this.color);
+			gc.fillOval(this.x, this.y, width, width);
+			
+			if (explode)
+			{
+				explosion(gc);
+			
+			}
 		}
 		
 	}
@@ -58,7 +65,7 @@ public class Rocket extends Bullet
 			{
 				if (this.checkCollision(e1))
 				{
-					this.damageEnemy(e1);
+					this.damageEnemy(e1, 20);
 				}
 			}
 			else
@@ -71,10 +78,10 @@ public class Rocket extends Bullet
 					{
 						if (checkSplashDmg(e1, e2));
 						{
-							this.damageEnemy(e2);
+							this.damageEnemy(e2, 20);
 						}
 						System.out.println("Rocket Hit 1");
-						this.damageEnemy(e1);
+						this.damageEnemy(e1, 20);
 						this.explode = true;
 						hit = true;
 						break;

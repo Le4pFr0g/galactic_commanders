@@ -13,29 +13,22 @@ public class Gun
 {
 	protected static final double WIDTH = 50;
 	protected List<Bullet> bullets = new ArrayList<>();
+	protected int dmg;
 	protected int shootingCooldown;
 	protected int bulletSpeed;
 	protected int fireRate;
 	protected boolean pickedUp = false;
 	protected boolean isSplashGun;
-	
-	public boolean isSplashGun()
-	{
-		return isSplashGun;
-	}
 
-	public void setSplashGun(boolean isSplashGun)
-	{
-		this.isSplashGun = isSplashGun;
-	}
 
 	//this is used by semi auto weapon(s)
 	protected boolean isShooting;
 
 	protected int ammo;
 
-	public Gun(int fireRate, int bulletSpeed, int ammo, boolean isSplashGun)
+	public Gun(int dmg, int fireRate, int bulletSpeed, int ammo, boolean isSplashGun)
 	{
+		this.dmg = dmg;
 		this.fireRate = fireRate;
 		this.shootingCooldown = fireRate;
 		this.bulletSpeed = bulletSpeed;
@@ -43,6 +36,11 @@ public class Gun
 		this.isSplashGun = isSplashGun;
 	}
 	
+	public int getDmg()
+	{
+		return dmg;
+	}
+
 	public void render(GraphicsContext gc, Player p, Color color)
 	{
 		gc.setFill(color);
@@ -59,13 +57,13 @@ public class Gun
 	{
 		if (shootingCooldown <= 0)
 		{
+
 			if (ammo > 0)
 			{
 				ammo -= 1;
 				shootingCooldown = fireRate;
 				
-				double angle = Math.atan2(y - p.getY(), x - p.getX()); // Radians
-				System.out.println(x + ", " + y + ", " + Math.toDegrees(angle));
+				double angle = Math.atan2((y - p.getY()), (x - p.getX())); // Radians
 
 				Bullet b = new Bullet(angle, p.getX() + WIDTH / 2, p.getY() + WIDTH / 2, bulletSpeed, Color.GRAY);
 				this.bullets.add(b);
@@ -119,5 +117,16 @@ public class Gun
 	public void setPickedUp(boolean pickedUp)
 	{
 		this.pickedUp = pickedUp;
+	}
+	
+	
+	public boolean isSplashGun()
+	{
+		return isSplashGun;
+	}
+
+	public void setSplashGun(boolean isSplashGun)
+	{
+		this.isSplashGun = isSplashGun;
 	}
 }

@@ -1,20 +1,35 @@
-package entity;
+package entity.enemies;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import bullets.Bullet;
+import entity.MovingObject;
+import entity.Player;
+import entity.Wall;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 public class Enemy extends MovingObject
 {
-	private int shootingCooldown = 50;
-	private List<Bullet> projectiles = new ArrayList<>();
-	private int projectileSpeed;
-	private Color color;
+	protected int shootingCooldown = 50;
+	protected List<Bullet> projectiles = new ArrayList<>();
+	protected int projectileSpeed;
+	protected Color color;
+    private int hp;
 	
+
+	public int getHp()
+	{
+		return hp;
+	}
+
+
+	public void setHp(int hp)
+	{
+		this.hp = hp;
+	}
 
 	// private Player player;
 	private static final double defaultWidth = 50;
@@ -28,9 +43,10 @@ public class Enemy extends MovingObject
 
 	public Enemy(Player p, double x, double y, int hp, int projectileSpeed, Color color)
 	{
-		super(x, y, defaultWidth, hp, defaultSpeed);
+		super(x, y, defaultWidth, defaultSpeed);
 		this.projectileSpeed = projectileSpeed;
 		this.color = color;
+		this.hp = hp;
 		
 	}
 
@@ -81,7 +97,7 @@ public class Enemy extends MovingObject
 		
 		if (side == 2 || side == 4)
 		{
-			if (w.y + w.height/2 > this.y + this.width)
+			if (w.getY() + w.getHeight()/2 > this.y + this.width)
 			{
 				moveAlongVerticalWall(w, -1);
 			}
@@ -94,7 +110,7 @@ public class Enemy extends MovingObject
 		}
 		else if (side == 1 || side == 3)
 		{
-			if (w.x + w.width/2 > this.x + this.width)
+			if (w.getX() + w.getWidth()/2 > this.x + this.width)
 			{
 				moveAlongHorizontalWall(w, -1);
 			}
@@ -115,7 +131,7 @@ public class Enemy extends MovingObject
 	{
 		//this.printPos();
 				
-		double amount = (w.y - this.y - w.height);
+		double amount = (w.getY() - this.y - w.getHeight());
 		
 		System.out.println("Y: " + amount*direction);
 
@@ -151,7 +167,7 @@ public class Enemy extends MovingObject
 	private void moveAlongHorizontalWall(Wall w, int direction)
 	{
 		
-		double amount = ((w.width + this.width) - w.width + w.x - this.x - this.width);
+		double amount = ((w.getWidth() + this.width) - w.getWidth() + w.getX() - this.x - this.width);
 		
 		System.out.println("X: " + amount*direction);
 
@@ -308,24 +324,33 @@ public class Enemy extends MovingObject
 		return angle;
 	}
 
-	public void render(GraphicsContext gc)
+	public void render(GraphicsContext gc, double sW, double sH)
 	{
-		// enemy
-		gc.setFill(this.color);
-		gc.fillRect(this.x, this.y, width, width);
-
-		// double distance = Math.sqrt(Math.pow(this.x - player.getX(), 2) +
-		// Math.pow(this.y - player.getY(), 2));
-
-		// projectiles
-		for (Bullet element : projectiles)
+		boolean shouldRender = 	this.x > 0 &&
+				this.x < sW &&
+				this.y > 0 &&
+				this.y < sH;
+				
+		if (shouldRender)
 		{
-			element.render(gc);
+			// enemy
+			gc.setFill(this.color);
+			gc.fillRect(this.x, this.y, width, width);
+	
+			// double distance = Math.sqrt(Math.pow(this.x - player.getX(), 2) +
+			// Math.pow(this.y - player.getY(), 2));
+	
+			// health
+			gc.setFont(Font.getDefault());
+			gc.fillText(String.valueOf(this.hp), x + width, y);
 		}
-
-		// health
-		gc.setFont(Font.getDefault());
-		gc.fillText(String.valueOf(this.hp), x + width, y);
+		
+		// projectiles
+		for (Bullet p : projectiles)
+		{
+			p.updatePos();
+			p.render(gc, sW, sH);
+		}
 
 	}
 }

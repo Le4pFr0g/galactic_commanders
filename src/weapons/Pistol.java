@@ -6,16 +6,16 @@ import javafx.scene.paint.Color;
 
 public class Pistol extends Gun
 {
-	static final int damage = 5;
+	static final int dmg = 5;
 	
 	static int fireRate = -1;
-	static int bSpeed = 20;
+	static int bSpeed = 5;
 	static int defaultAmmo = 10;
 	
 
 	public Pistol()
 	{
-		super(fireRate, bSpeed, defaultAmmo, false);
+		super(dmg, fireRate, bSpeed, defaultAmmo, false);
 
 	}
 	

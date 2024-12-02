@@ -3,17 +3,15 @@ package entity;
 public class MovingObject
 {
     protected double x, y;
-    protected int hp;
     protected double speed;
     protected double width;
 
     // Constructor
-    public MovingObject(double x, double y, double width, int hp, double speed) 
+    public MovingObject(double x, double y, double width, double speed) 
     {
         this.x = x;
         this.y = y;
         this.width = width;
-        this.hp = hp;
         this.speed = speed;
     }
     
@@ -43,16 +41,6 @@ public class MovingObject
 	public void setY(double y)
 	{
 		this.y = y;
-	}
-	
-	public int getHp()
-	{
-		return hp;
-	}
-
-	public void setHp(int hp)
-	{
-		this.hp = hp;
 	}
 	
 	public double getSpeed()
