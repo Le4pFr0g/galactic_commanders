@@ -12,7 +12,7 @@ public class WeaponPU extends PickUp
 	public WeaponPU(double x, double y, int weaponID, int value, Color color)
 	{
 		
-		super(x, y, color);
+		super(x, y, 50, color);
 		this.weaponID = weaponID;
 		this.value = value;
 		

@@ -10,7 +10,7 @@ public class AmmoPU extends PickUp
 
 	public AmmoPU(double x, double y, int weaponID, int value, Color color)
 	{
-		super(x, y, color);
+		super(x, y, 30, color);
 		this.weaponID = weaponID;
 		this.value = value;
 		
@@ -21,8 +21,6 @@ public class AmmoPU extends PickUp
 	{
 		p.getGuns().get(weaponID).setAmmo(p.getGuns().get(weaponID).getAmmo() + value);
 		
-		tempSpawn(Math.random() * 200, Math.random() * 200);
-
 	}
 
 	

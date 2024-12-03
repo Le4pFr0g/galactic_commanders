@@ -186,14 +186,14 @@ public class Player extends MovingObject
 
 	}
 
-	public void kill(GraphicsContext gc, double screenH, double screenW)
+	public void kill(GraphicsContext gc, double sW, double sH)
 	{
 		gc.setFont(Font.getDefault());
 		gc.setFont(Font.font(60));
 		gc.setFill(Color.RED);
 		String gameOver = "GAME OVER";
 		double offset = gameOver.length() / 2;
-		gc.fillText(gameOver, screenW / 2 - 30 * offset, screenH / 2);
+		gc.fillText(gameOver, sW / 2 - 30 * offset, sH / 2);
 		gc.setFont(Font.getDefault());
 		isAlive = false;
 	}
@@ -202,7 +202,7 @@ public class Player extends MovingObject
 	{
 		
 		// display player box
-		gc.setFill(Color.GREEN);
+		gc.setFill(Color.WHITE);
 		gc.fillRect(this.x, this.y, width, width);
 
 		// display health

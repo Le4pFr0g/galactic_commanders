@@ -7,13 +7,14 @@ import javafx.scene.paint.Color;
 public class PickUp
 {
 	private double x, y;
-	private double width = 30;
+	private double width;
 	private Color color;
 	
-	public PickUp(double x, double y, Color color)
+	public PickUp(double x, double y, double width, Color color)
 	{
 		this.x = x;
 		this.y = y;
+		this.width = width;
 		this.color = color;
 	}
 

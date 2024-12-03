@@ -2,6 +2,7 @@ package entity.enemies;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import bullets.Bullet;
 import entity.MovingObject;
@@ -9,6 +10,8 @@ import entity.Player;
 import entity.Wall;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
 public class Enemy extends MovingObject
@@ -18,18 +21,9 @@ public class Enemy extends MovingObject
 	protected int projectileSpeed;
 	protected Color color;
     private int hp;
-	
+    protected double tolerence = 100;
+    protected boolean awake = false;
 
-	public int getHp()
-	{
-		return hp;
-	}
-
-
-	public void setHp(int hp)
-	{
-		this.hp = hp;
-	}
 
 	// private Player player;
 	private static final double defaultWidth = 50;
@@ -41,49 +35,101 @@ public class Enemy extends MovingObject
 
 
 
-	public Enemy(Player p, double x, double y, int hp, int projectileSpeed, Color color)
+	public Enemy(double x, double y, int hp, int projectileSpeed, Color color)
 	{
 		super(x, y, defaultWidth, defaultSpeed);
 		this.projectileSpeed = projectileSpeed;
 		this.color = color;
-		this.hp = hp;
-		
+		this.hp = hp;		
 	}
-
 	
-	public void move(Player p)
+	public void attack(Player p, double sW, double sH, ArrayList<Wall> walls)
 	{
-		if (!touchingWall)
+		if (awake)
 		{
-			//System.out.println("move(): " + x + ", " + y);
-
-			//tolerence is how many pixels away the enemy will move to
-			double tolerence = 75;
-			if (Math.abs(p.getX() - this.x) < tolerence)
+			if (!isWallBetween(p, walls) || !isCloseToScreen(sW, sH))
 			{
+				if (shootingCooldown == 0)
+				{
+					double angle = calcAngle(this.x, p.getX(), this.y, p.getY());
+					projectiles.add(new Bullet(angle, this.x + width / 2, this.y + width / 2, projectileSpeed, Color.DARKRED));
+					shootingCooldown = 150;
+				}
 			}
-			else if (p.getX() > this.x)
+			if (shootingCooldown > 0)
 			{
-				this.x += speed;
-			}
-			else
-			{
-				this.x -= speed;
-			}
-	
-			if (Math.abs(p.getY() - this.y) < tolerence)
-			{
-			}
-			else if (p.getY() > this.y)
-			{
-				this.y += speed;
-			}
-			else
-			{
-				this.y -= speed;
+				shootingCooldown--;
 			}
 		}
+
 	}
+	
+
+	
+	public void move(Player p, double sW, double sH, ArrayList<Wall> walls) {
+	    if (awake) {
+	        if (isCloseToScreen(sW, sH)) {
+	            double newX = this.x;
+	            double newY = this.y;
+
+	            // Move horizontally towards the player
+	            if (Math.abs(p.getX() - this.x) >= tolerence) {
+	                if (p.getX() > this.x) {
+	                    newX += speed; // Move right
+	                } else {
+	                    newX -= speed; // Move left
+	                }
+	            }
+
+	            // Move vertically towards the player
+	            if (Math.abs(p.getY() - this.y) >= tolerence) {
+	                if (p.getY() > this.y) {
+	                    newY += speed; // Move down
+	                } else {
+	                    newY -= speed; // Move up
+	                }
+	            }
+
+	            // Check for wall collisions
+	            if (!isColliding(newX, this.y, walls)) {
+	                this.x = newX; // Update X if no horizontal collision
+	            }
+	            if (!isColliding(this.x, newY, walls)) {
+	                this.y = newY; // Update Y if no vertical collision
+	            }
+	        }
+	    }
+	}
+	
+	private boolean isColliding(double newX, double newY, ArrayList<Wall> walls) {
+	    // Create a bounding box for the enemy at the new position
+	    javafx.geometry.Bounds enemyBounds = new javafx.geometry.BoundingBox(newX, newY, this.width, this.width);
+
+	    // Check against each wall's bounding box
+	    for (Wall wall : walls) {
+	        if (enemyBounds.intersects(wall.getBounds())) {
+	            return true; // Collision detected
+	        }
+	    }
+	    return false; // No collision
+	}
+
+	
+	private int getOffWall() 
+	{
+		Random random = new Random();
+		moveInDirection(random.nextInt(4));
+        return 60 + random.nextInt(20); // Move for 30-50 ticks
+    }
+	
+	private void moveInDirection(int direction) {
+        switch (direction) {
+            case 0 -> y -= speed; // Up
+            case 1 -> x += speed; // Right
+            case 2 -> y += speed; // Down
+            case 3 -> x -= speed; // Left
+        }
+    }
 
 
 	public void moveAlongWall(int side, Wall w)
@@ -128,39 +174,7 @@ public class Enemy extends MovingObject
 
 
 	private void moveAlongVerticalWall(Wall w, int direction)
-	{
-		//this.printPos();
-				
-		double amount = (w.getY() - this.y - w.getHeight());
-		
-		System.out.println("Y: " + amount*direction);
-
-		System.out.println("Y = " + this.y);
-		this.y += direction * speed;
-		System.out.println("Y = " + this.y);
-
-		
-//		double tolerence = 50;
-//
-//		System.out.println("2: " + (Math.abs(w.getY() - this.y) < tolerence));
-//		System.out.println("2: " + (w.getX() - this.x));
-//		
-//
-//		System.out.println();
-//
-//		if (Math.abs(w.getY() - this.y) < tolerence)
-//		{
-//		}
-//		else if (w.getY() > this.y)
-//		{
-//			this.y += speed;
-//		}
-//		else
-//		{
-//			this.y -= speed;
-//		}
-		
-		
+	{		
 		
 	}
 	
@@ -173,26 +187,7 @@ public class Enemy extends MovingObject
 
 		
 		this.x += direction * amount;
-//		double tolerence = 50;
-//		
-//		System.out.println("1: " + (Math.abs(w.getX() - this.x) < tolerence));
-//		System.out.println("1: " + (w.getX() - this.x));
-//		
-//
-//		
-//		System.out.println();
-//		if (Math.abs(w.getX() - this.x) < tolerence)
-//		{
-//		}
-//		else if (w.getX() > this.x)
-//		{
-//			this.x += speed;
-//		}
-//		else
-//		{
-//			this.x -= speed;
-//		}
-	
+
 		
 	}
 	
@@ -202,16 +197,21 @@ public class Enemy extends MovingObject
 	}
 
 
-	public void attack(Player p)
+	
+	public boolean isWallBetween(Player p, ArrayList<Wall> walls) 
 	{
-		if (shootingCooldown == 0)
-		{
-			double angle = calcAngle(this.x, p.getX(), this.y, p.getY());
-			projectiles.add(new Bullet(angle, this.x + width / 2, this.y + width / 2, projectileSpeed, Color.DARKRED));
-			shootingCooldown = 25;
-		}
-		shootingCooldown--;
+	    // Create a line between the player and the enemy
+	    Line lineOfSight = new Line(p.getX(), p.getY(), this.x, this.y);
 
+	    // Check if the line intersects with any wall
+	    for (Wall w : walls) 
+	    {
+	    	
+	        if (lineOfSight.intersects(w.getBounds())) {
+	            return true; // Wall is blocking the view
+	        }
+	    }
+	    return false; // No wall is blocking the view
 	}
 
 	public void checkCollision(Player p)
@@ -323,13 +323,37 @@ public class Enemy extends MovingObject
 
 		return angle;
 	}
+	
+
+	
+
+	public int getHp()
+	{
+		return hp;
+	}
+
+
+	public void setHp(int hp)
+	{
+		this.hp = hp;
+	}
+
+
+	public boolean isAwake()
+	{
+		return awake;
+	}
+
+
+	public void setAwake(boolean awake)
+	{
+		this.awake = awake;
+	}
+
 
 	public void render(GraphicsContext gc, double sW, double sH)
 	{
-		boolean shouldRender = 	this.x > 0 &&
-				this.x < sW &&
-				this.y > 0 &&
-				this.y < sH;
+		boolean shouldRender = isCloseToScreen(sW, sH);
 				
 		if (shouldRender)
 		{
@@ -352,5 +376,17 @@ public class Enemy extends MovingObject
 			p.render(gc, sW, sH);
 		}
 
+	}
+	
+	
+
+
+	protected boolean isCloseToScreen(double sW, double sH)
+	{
+		int buffer = 100;
+		return	this.x > -buffer - width &&
+				this.x < sW + buffer + width &&
+				this.y > -buffer - width &&
+				this.y < sH + buffer + width;
 	}
 }

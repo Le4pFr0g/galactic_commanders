@@ -23,10 +23,12 @@ public class Wall
 	
 	public void render(GraphicsContext gc, double sW, double sH)
 	{
-		boolean shouldRender = 	this.x > 0 &&
-								this.x < sW &&
-								this.y > 0 &&
-								this.y < sH;
+		int buffer = 100;
+		boolean shouldRender = 	this.x > -buffer - width &&
+								this.x < sW + buffer + width &&
+								this.y > -buffer - height &&
+								this.y < sH + buffer + height;
+								
 		if (shouldRender)
 		{
 			gc.setFill(Color.BLACK);
@@ -38,6 +40,10 @@ public class Wall
 
 	}
 	
+	public javafx.geometry.Bounds getBounds() 
+	{
+        return new javafx.geometry.BoundingBox(x, y, width, height);
+    }
 	
 	public int checkCollision(MovingObject p)
 	{

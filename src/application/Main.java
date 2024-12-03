@@ -11,6 +11,7 @@ import java.util.Set;
 import bullets.Bullet;
 import entity.Player;
 import entity.Wall;
+import entity.enemies.AssaultTrooper;
 import entity.enemies.Blob;
 import entity.enemies.Enemy;
 import javafx.animation.Animation;
@@ -99,6 +100,7 @@ public class Main extends Application
 				update(gc);
 				cameraUpdate(gc);
 				player.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
+				endLevel(gc);
 			}
 		};
 		gameLoop.start();
@@ -131,14 +133,31 @@ public class Main extends Application
 	
 	private void addWalls()
 	{
-//		for (int i = 0; i < HEIGHT; i += 50)
-//			walls.add(new Wall(0, i, 50, 50, Color.GRAY));
+		//Vertical
+		walls.add(new Wall(0, 0, 50, 2*SCREEN_HEIGHT, Color.GRAY));
+//		walls.add(new Wall(2*SCREEN_WIDTH, 50, 50, 2*SCREEN_HEIGHT, Color.GRAY));
+		walls.add(new Wall(SCREEN_WIDTH, 50, 50, 2*SCREEN_HEIGHT, Color.GRAY));
+
 		
-		//for (int i = 200; i < HEIGHT-200; i += 50)
-		//	walls.add(new Wall(WIDTH/4, 200, 50, 150, Color.GRAY));
+		walls.add(new Wall(SCREEN_WIDTH/2 - 200, 0, 50, SCREEN_HEIGHT, Color.GRAY));
+		walls.add(new Wall(SCREEN_WIDTH/2 - 200, SCREEN_HEIGHT+300, 50, SCREEN_HEIGHT-300, Color.GRAY));
+
+
 		
-		//for (int i = 400; i < WIDTH-200; i += 50)
-			walls.add(new Wall(400, SCREEN_HEIGHT/2, 350, 50, Color.GRAY));
+
+		//Horizontal
+		walls.add(new Wall(50, 0, 2*SCREEN_WIDTH, 50, Color.GRAY));
+		walls.add(new Wall(0, 2*SCREEN_HEIGHT, 2*SCREEN_WIDTH, 50, Color.GRAY));
+		
+		walls.add(new Wall(SCREEN_WIDTH/2 - 300, SCREEN_HEIGHT, 150, 50, Color.GRAY));
+		walls.add(new Wall(SCREEN_WIDTH/2 - 200, SCREEN_HEIGHT+250, 150, 50, Color.GRAY));
+
+		
+		walls.add(new Wall(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2, 150, 50, Color.GRAY));
+
+
+
+
 		
 		
 		
@@ -148,20 +167,22 @@ public class Main extends Application
 
 	private void addAmmo()
 	{
-//	 	ammoPUs.add(new AmmoPU(100, 100, 0, 10, Color.MEDIUMPURPLE));
-//		ammoPUs.add(new AmmoPU(100, 100, 1, 10, Color.MEDIUMPURPLE));
-		ammoPUs.add(new AmmoPU(100, 100, 2, 10, Color.MEDIUMPURPLE));
-//		ammoPUs.add(new AmmoPU(100, 100, 3, 10, Color.MEDIUMPURPLE));
+		int offset = 75;
+	 	ammoPUs.add(new AmmoPU(SCREEN_WIDTH/2 - 200 + offset, SCREEN_HEIGHT+300 + offset, 0, 10, Color.PURPLE));
+		ammoPUs.add(new AmmoPU(680, 330, 1, 10, Color.DARKBLUE));
+		ammoPUs.add(new AmmoPU(SCREEN_WIDTH/2 - 300 + offset/2, SCREEN_HEIGHT - 2*offset, 2, 10, Color.GREEN));
+		ammoPUs.add(new AmmoPU(100 + offset, SCREEN_HEIGHT*2 - 100, 3, 10, Color.MEDIUMPURPLE));
 
 
 	}
 	
 	private void addWeapons()
 	{
-//		weaponPUs.add(new WeaponPU(WIDTH/2, HEIGHT/2, 0, 10, Color.rgb(150, 20, 150)));
-//		weaponPUs.add(new WeaponPU(WIDTH/3 + 200, HEIGHT/3 + 200, 1, 10, Color.rgb(0, 0, 0)));
-		weaponPUs.add(new WeaponPU(400, 200, 2, 10, Color.rgb(255, 255, 255)));
-//		weaponPUs.add(new WeaponPU(100, 100, 3, 10, Color.rgb(255, 255, 255)));
+		int offset = 75;
+		weaponPUs.add(new WeaponPU(SCREEN_WIDTH/2 - 200 + offset, SCREEN_HEIGHT+300 + offset/4, 0, 10, Color.PURPLE));
+		weaponPUs.add(new WeaponPU(680, 380, 1, 10, Color.DARKBLUE));
+		weaponPUs.add(new WeaponPU(SCREEN_WIDTH/2 - 300 + offset/2, SCREEN_HEIGHT - offset, 2, 10, Color.GREEN));
+		weaponPUs.add(new WeaponPU(100, SCREEN_HEIGHT*2 - 100, 3, 10, Color.rgb(255, 255, 255)));
 
 
 
@@ -170,36 +191,26 @@ public class Main extends Application
 
 	private void spawnEnemies()
 	{
-		Random random = new Random();
-//		double x = random.nextDouble() * WIDTH;
-//		double y = random.nextDouble() * HEIGHT;
-		double x = SCREEN_WIDTH /3;
-		double y = SCREEN_HEIGHT /3;
-		//this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.RED));// Color.rgb(255, 0, (int)(Math.random()*255))));
-		this.enemies.add(new Blob(this.player, x, y, 100, 5, Color.YELLOW));// Color.rgb(255, 0, (int)(Math.random()*255))));
+//		Random random = new Random();
+//		double x = random.nextDouble() * SCREEN_WIDTH;
+//		double y = random.nextDouble() * SCREEN_HEIGHT;
+		this.enemies.add(new Enemy(900, 150, 100, 5, Color.RED));// Color.rgb(255, 0, (int)(Math.random()*255))));
+
+		
+		this.enemies.add(new AssaultTrooper(900, SCREEN_HEIGHT - 100));// Color.rgb(255, 0, (int)(Math.random()*255))));
+
+		this.enemies.add(new Blob(900, SCREEN_HEIGHT*1.5));// Color.rgb(255, 0, (int)(Math.random()*255))));
 
 		
 		
-		//x = random.nextDouble() * WIDTH;
-		//y = random.nextDouble() * HEIGHT;
-//		x += 20;
-//		y += 10;
-//		this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.PURPLE));//  Color.rgb(255, (int)(Math.random()*255), 0)));
-//		
-//		x += 200;
-//		y += 100;
-//		this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.BLUE));//  Color.rgb(255, (int)(Math.random()*255), 0)));
-//		x += 20;
-//		y += 10;
-//		this.enemies.add(new Enemy(this.player, x, y, 100, 5, Color.GREEN));//  Color.rgb(255, (int)(Math.random()*255), 0)));
-	}
+}
 
 	
 
 	private void update(GraphicsContext gc)
 	{
 		gc.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		gc.setFill(Color.TAN);
+		gc.setFill(Color.SANDYBROWN);
 		gc.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		
@@ -245,11 +256,17 @@ public class Main extends Application
 			}
 		}
 		
+		List<AmmoPU> ammoPUsToRemove = new ArrayList<>();
 		for (AmmoPU a : ammoPUs)
 		{
-			a.checkCollision(player);
+			if (a.checkCollision(player))
+			{
+				ammoPUsToRemove.add(a);
+			}
 			a.render(gc);
-		} 
+		}
+		ammoPUs.removeAll(ammoPUsToRemove);
+
 		
 		List<WeaponPU> weaponPUsToRemove = new ArrayList<>();
 		for (WeaponPU w : weaponPUs)
@@ -336,11 +353,18 @@ public class Main extends Application
 
 		for (Enemy e : enemies)
 		{
-			
+			if (!e.isAwake())
+			{
+				e.setAwake(!e.isWallBetween(player, walls));
+			}
 			if (player.isAlive())
 			{
-				e.move(player);
-				e.attack(player);
+				e.move(player, SCREEN_WIDTH, SCREEN_HEIGHT, walls);
+				e.attack(player, SCREEN_WIDTH, SCREEN_HEIGHT, walls);
+			}
+			else
+			{
+				e.setAwake(false);
 			}
 			e.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			e.isTouchingWall();
@@ -362,11 +386,11 @@ public class Main extends Application
 	{
 //		gc.setFill(Color.BLACK);
 //		
-//		gc.fillRect(0, 0, cameraDistance, HEIGHT);
-//		gc.fillRect(WIDTH-cameraDistance, 0, cameraDistance, HEIGHT);
+//		gc.fillRect(0, 0, cameraDistance, SCREEN_HEIGHT);
+//		gc.fillRect(SCREEN_WIDTH-cameraDistance, 0, cameraDistance, SCREEN_HEIGHT);
 //		
-//		gc.fillRect(0, 0, WIDTH, cameraDistance);
-//		gc.fillRect(0, HEIGHT-cameraDistance, WIDTH, cameraDistance);
+//		gc.fillRect(0, 0, SCREEN_WIDTH, cameraDistance);
+//		gc.fillRect(0, SCREEN_HEIGHT-cameraDistance, SCREEN_WIDTH, cameraDistance);
 
 
 		if (player.getX() < cameraDistance && keysPressed.contains(KeyCode.A))
@@ -474,7 +498,7 @@ public class Main extends Application
 	{
 		if (player.getHp() <= 0)
 		{
-			player.kill(gc, SCREEN_HEIGHT, SCREEN_WIDTH);
+			player.kill(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		}
 		else
@@ -532,13 +556,13 @@ public class Main extends Application
 			}
 			if(keysPressed.contains(KeyCode.DIGIT3))
 			{
-				if (this.player.getGuns().get(3).isPickedUp())
-				this.player.swapWeapon(3);
+				if (this.player.getGuns().get(2).isPickedUp())
+				this.player.swapWeapon(2);
 			}
 			if(keysPressed.contains(KeyCode.DIGIT4))
 			{
-				if (this.player.getGuns().get(4).isPickedUp())
-				this.player.swapWeapon(4);
+				if (this.player.getGuns().get(3).isPickedUp())
+				this.player.swapWeapon(3);
 			}
 			
 			//player shooting
@@ -594,6 +618,21 @@ public class Main extends Application
 	{
 		mouseX = event.getSceneX();
 		mouseY = event.getSceneY();
+//		System.out.println(mouseX + ", " + mouseY);
+	}
+	
+	private void endLevel(GraphicsContext gc)
+	{
+		if (enemies.isEmpty())
+		{
+			gc.setFont(Font.getDefault());
+			gc.setFont(Font.font(60));
+			gc.setFill(Color.RED);
+			String gameOver = "YOU WIN!";
+			double offset = gameOver.length() / 2;
+			gc.fillText(gameOver, SCREEN_WIDTH / 2 - offset*20, SCREEN_HEIGHT / 2);
+			gc.setFont(Font.getDefault());
+		}
 	}
 
 }
