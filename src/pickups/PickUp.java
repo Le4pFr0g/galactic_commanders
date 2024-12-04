@@ -20,6 +20,9 @@ public class PickUp
 
 	public void render(GraphicsContext gc)
 	{
+		gc.setFill(Color.BLACK);
+		gc.setLineWidth(2);
+		gc.strokeRect(this.x, this.y, width, width);
 		
 		gc.setFill(color);
 		gc.fillRect(this.getX(), this.getY(), getWidth(), getWidth());

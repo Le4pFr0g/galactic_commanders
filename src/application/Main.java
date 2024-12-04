@@ -1,11 +1,8 @@
 package application;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import bullets.Bullet;
@@ -14,12 +11,8 @@ import entity.Wall;
 import entity.enemies.AssaultTrooper;
 import entity.enemies.Blob;
 import entity.enemies.Enemy;
-import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -28,13 +21,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.FillRule;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import pickups.AmmoPU;
-import pickups.PickUp;
 import pickups.WeaponPU;
 import weapons.Gun;
 
@@ -78,7 +68,7 @@ public class Main extends Application
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		pane.getChildren().add(canvas);
 
-		this.player = new Player(200, 200, 1000);
+		this.player = new Player(200, 200, 1000900);
 
 		// Game loop using AnimationTimer
 		inputHandler = new AnimationTimer()
@@ -136,11 +126,14 @@ public class Main extends Application
 		//Vertical
 		walls.add(new Wall(0, 0, 50, 2*SCREEN_HEIGHT, Color.GRAY));
 //		walls.add(new Wall(2*SCREEN_WIDTH, 50, 50, 2*SCREEN_HEIGHT, Color.GRAY));
-		walls.add(new Wall(SCREEN_WIDTH, 50, 50, 2*SCREEN_HEIGHT, Color.GRAY));
+		walls.add(new Wall(SCREEN_WIDTH + 300, 50, 50, 2*SCREEN_HEIGHT, Color.GRAY));
 
 		
 		walls.add(new Wall(SCREEN_WIDTH/2 - 200, 0, 50, SCREEN_HEIGHT, Color.GRAY));
 		walls.add(new Wall(SCREEN_WIDTH/2 - 200, SCREEN_HEIGHT+300, 50, SCREEN_HEIGHT-300, Color.GRAY));
+		
+		walls.add(new Wall(SCREEN_WIDTH - 50, SCREEN_HEIGHT/2 - 200, 50, 400, Color.GRAY));
+
 
 
 		
@@ -149,11 +142,15 @@ public class Main extends Application
 		walls.add(new Wall(50, 0, 2*SCREEN_WIDTH, 50, Color.GRAY));
 		walls.add(new Wall(0, 2*SCREEN_HEIGHT, 2*SCREEN_WIDTH, 50, Color.GRAY));
 		
+		walls.add(new Wall(SCREEN_WIDTH-500, SCREEN_HEIGHT+250, 800, 50, Color.GRAY));
+
+		
 		walls.add(new Wall(SCREEN_WIDTH/2 - 300, SCREEN_HEIGHT, 150, 50, Color.GRAY));
 		walls.add(new Wall(SCREEN_WIDTH/2 - 200, SCREEN_HEIGHT+250, 150, 50, Color.GRAY));
 
 		
 		walls.add(new Wall(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2, 150, 50, Color.GRAY));
+		walls.add(new Wall(SCREEN_WIDTH, SCREEN_HEIGHT/2, 300, 50, Color.GRAY));
 
 
 
@@ -311,7 +308,7 @@ public class Main extends Application
 						{
 							if (b.checkCollision(e))
 							{
-								System.out.println("HIT ENEMY");
+								//System.out.println("HIT ENEMY");
 								bulletsToRemove.add(b);
 								b.damageEnemy(e, g.getDmg());	
 			
@@ -332,15 +329,17 @@ public class Main extends Application
 			{
 				if (p.checkCollision(player))
 				{
-					System.out.println("HIT PLAYER");
-					player.setHp(player.getHp() - 5);
+					//System.out.println("HIT PLAYER");
+					player.setHp(player.getHp() - e.getDmg());
 					projectilesToRemove.add(p);
+					gc.setFill(new Color(.3, 0.0, 0.0, 0.15));
+					gc.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 				}
 
 			}
 			e.getProjectiles().removeAll(projectilesToRemove);
 			
-			//checks if enemy is dead, if so remov them
+			//checks if enemy is dead, if so remove them
 			if (e.getHp() <= 0)
 			{
 				enemiesToRemove.add(e);
@@ -359,7 +358,7 @@ public class Main extends Application
 			}
 			if (player.isAlive())
 			{
-				e.move(player, SCREEN_WIDTH, SCREEN_HEIGHT, walls);
+				e.move(player, SCREEN_WIDTH, SCREEN_HEIGHT, enemies, walls);
 				e.attack(player, SCREEN_WIDTH, SCREEN_HEIGHT, walls);
 			}
 			else
@@ -632,6 +631,10 @@ public class Main extends Application
 			double offset = gameOver.length() / 2;
 			gc.fillText(gameOver, SCREEN_WIDTH / 2 - offset*20, SCREEN_HEIGHT / 2);
 			gc.setFont(Font.getDefault());
+		}
+		if (!player.isAlive())
+		{
+			player.kill(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 		}
 	}
 

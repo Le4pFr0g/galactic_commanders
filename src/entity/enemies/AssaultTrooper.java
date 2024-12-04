@@ -15,6 +15,7 @@ public class AssaultTrooper extends Enemy
 	public AssaultTrooper(double x, double y)
 	{
 		super(x, y, defaultHp, defaultProjectileSpeed, defaultColor);
+		this.setDmg(15);
 	}
 	
 	@Override

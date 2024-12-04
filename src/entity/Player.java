@@ -201,6 +201,10 @@ public class Player extends MovingObject
 	public void render(GraphicsContext gc, double sW, double sH)
 	{
 		
+		gc.setFill(Color.BLACK);
+		gc.setLineWidth(2);
+		gc.strokeRect(this.x, this.y, width, width);
+		
 		// display player box
 		gc.setFill(Color.WHITE);
 		gc.fillRect(this.x, this.y, width, width);
