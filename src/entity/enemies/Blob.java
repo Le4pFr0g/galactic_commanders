@@ -19,7 +19,7 @@ public class Blob extends Enemy
 	public Blob(double x, double y)
 	{
 		super(x, y, defaultHp, defaultProjectileSpeed, defaultColor);
-		this.setDmg(25);
+		this.setDmg(10);
 	}
 	
 	@Override

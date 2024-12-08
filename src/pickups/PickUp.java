@@ -6,9 +6,9 @@ import javafx.scene.paint.Color;
 
 public class PickUp
 {
-	private double x, y;
-	private double width;
-	private Color color;
+	protected double x, y;
+	protected double width;
+	protected Color color;
 	
 	public PickUp(double x, double y, double width, Color color)
 	{

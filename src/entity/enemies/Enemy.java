@@ -389,9 +389,6 @@ public class Enemy extends MovingObject
 			gc.setFill(this.color);
 			gc.fillRect(this.x, this.y, width, width);
 
-			// double distance = Math.sqrt(Math.pow(this.x - player.getX(), 2) +
-			// Math.pow(this.y - player.getY(), 2));
-
 			// health
 			gc.setFont(Font.getDefault());
 			gc.fillText(String.valueOf(this.hp), x + width, y);

@@ -16,6 +16,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -24,15 +25,28 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import maps.Maps;
 import pickups.AmmoPU;
+import pickups.HealthPU;
 import pickups.WeaponPU;
 import weapons.Gun;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
+import javafx.geometry.Insets;
 
 public class Main extends Application
 {
 	//system controls
-    private final double SCREEN_WIDTH = Screen.getPrimary().getBounds().getWidth();// * 0.5;
-    private final double SCREEN_HEIGHT = Screen.getPrimary().getBounds().getHeight();// * 0.5;
+//    private final double SCREEN_WIDTH = Screen.getPrimary().getBounds().getWidth();// * 0.5;
+//    private final double SCREEN_HEIGHT = Screen.getPrimary().getBounds().getHeight();// * 0.5;
+    private final double SCREEN_WIDTH = 1600;
+    private final double SCREEN_HEIGHT = 900;
     private AnimationTimer gameLoop;
     private AnimationTimer inputHandler;
 	private int cameraDistance = 150;
@@ -48,6 +62,7 @@ public class Main extends Application
 	private ArrayList<Enemy> enemies = new ArrayList<>();
 	private ArrayList<AmmoPU> ammoPUs = new ArrayList<>();
 	private ArrayList<WeaponPU> weaponPUs = new ArrayList<>();
+	private ArrayList<HealthPU> healthPUs = new ArrayList<>();
 	private ArrayList<Wall> walls = new ArrayList<>();
 	
 
@@ -66,9 +81,26 @@ public class Main extends Application
 		Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 		canvas.setFocusTraversable(true);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
+		
+		
+//		 // Load an image
+//        Image backgroundImage = new Image(getClass().getResource("/desert_sand.jpg").toExternalForm()); // Adjust path as necessary
+//
+//        // Create a BackgroundImage with the loaded image
+//        BackgroundImage background = new BackgroundImage(
+//            backgroundImage,
+//            BackgroundRepeat.NO_REPEAT,   // Don't repeat the image
+//            BackgroundRepeat.NO_REPEAT,   // Don't repeat vertically
+//            BackgroundPosition.CENTER,    // Center the image
+//            BackgroundSize.DEFAULT        // Use the default size of the image
+//        );
+//		
+//        pane.setBackground(new Background(background));
+
+		pane.setBackground(new Background(new BackgroundFill(Color.SANDYBROWN, CornerRadii.EMPTY, Insets.EMPTY)));
 		pane.getChildren().add(canvas);
 
-		this.player = new Player(200, 200, 1000900);
+		this.player = new Player(200, 200, 90);
 
 		// Game loop using AnimationTimer
 		inputHandler = new AnimationTimer()
@@ -90,15 +122,11 @@ public class Main extends Application
 				update(gc);
 				cameraUpdate(gc);
 				player.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
-				endLevel(gc);
 			}
 		};
 		gameLoop.start();
 
-		spawnEnemies();
-		addAmmo();
-		addWeapons();
-		addWalls();
+		Maps.createMap2(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
 		
 	    System.out.println(SCREEN_WIDTH);
 	    System.out.println(SCREEN_HEIGHT);
@@ -115,106 +143,29 @@ public class Main extends Application
 		scene.setOnMouseReleased(this::handleMouseReleased);
 
 		primaryStage.setTitle("Galactic Commanders");
-		primaryStage.setFullScreen(true);
+		//primaryStage.setFullScreen(true);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
 	}
 	
-	private void addWalls()
-	{
-		//Vertical
-		walls.add(new Wall(0, 0, 50, 2*SCREEN_HEIGHT, Color.GRAY));
-//		walls.add(new Wall(2*SCREEN_WIDTH, 50, 50, 2*SCREEN_HEIGHT, Color.GRAY));
-		walls.add(new Wall(SCREEN_WIDTH + 300, 50, 50, 2*SCREEN_HEIGHT, Color.GRAY));
-
-		
-		walls.add(new Wall(SCREEN_WIDTH/2 - 200, 0, 50, SCREEN_HEIGHT, Color.GRAY));
-		walls.add(new Wall(SCREEN_WIDTH/2 - 200, SCREEN_HEIGHT+300, 50, SCREEN_HEIGHT-300, Color.GRAY));
-		
-		walls.add(new Wall(SCREEN_WIDTH - 50, SCREEN_HEIGHT/2 - 200, 50, 400, Color.GRAY));
-
-
-
-		
-
-		//Horizontal
-		walls.add(new Wall(50, 0, 2*SCREEN_WIDTH, 50, Color.GRAY));
-		walls.add(new Wall(0, 2*SCREEN_HEIGHT, 2*SCREEN_WIDTH, 50, Color.GRAY));
-		
-		walls.add(new Wall(SCREEN_WIDTH-500, SCREEN_HEIGHT+250, 800, 50, Color.GRAY));
-
-		
-		walls.add(new Wall(SCREEN_WIDTH/2 - 300, SCREEN_HEIGHT, 150, 50, Color.GRAY));
-		walls.add(new Wall(SCREEN_WIDTH/2 - 200, SCREEN_HEIGHT+250, 150, 50, Color.GRAY));
-
-		
-		walls.add(new Wall(SCREEN_WIDTH/2-150, SCREEN_HEIGHT/2, 150, 50, Color.GRAY));
-		walls.add(new Wall(SCREEN_WIDTH, SCREEN_HEIGHT/2, 300, 50, Color.GRAY));
-
-
-
-
-		
-		
-		
-
-		
-	}
-
-	private void addAmmo()
-	{
-		int offset = 75;
-	 	ammoPUs.add(new AmmoPU(SCREEN_WIDTH/2 - 200 + offset, SCREEN_HEIGHT+300 + offset, 0, 10, Color.PURPLE));
-		ammoPUs.add(new AmmoPU(680, 330, 1, 10, Color.DARKBLUE));
-		ammoPUs.add(new AmmoPU(SCREEN_WIDTH/2 - 300 + offset/2, SCREEN_HEIGHT - 2*offset, 2, 10, Color.GREEN));
-		ammoPUs.add(new AmmoPU(100 + offset, SCREEN_HEIGHT*2 - 100, 3, 10, Color.MEDIUMPURPLE));
-
-
-	}
 	
-	private void addWeapons()
-	{
-		int offset = 75;
-		weaponPUs.add(new WeaponPU(SCREEN_WIDTH/2 - 200 + offset, SCREEN_HEIGHT+300 + offset/4, 0, 10, Color.PURPLE));
-		weaponPUs.add(new WeaponPU(680, 380, 1, 10, Color.DARKBLUE));
-		weaponPUs.add(new WeaponPU(SCREEN_WIDTH/2 - 300 + offset/2, SCREEN_HEIGHT - offset, 2, 10, Color.GREEN));
-		weaponPUs.add(new WeaponPU(100, SCREEN_HEIGHT*2 - 100, 3, 10, Color.rgb(255, 255, 255)));
-
-
-
-		
-	}
-
-	private void spawnEnemies()
-	{
-//		Random random = new Random();
-//		double x = random.nextDouble() * SCREEN_WIDTH;
-//		double y = random.nextDouble() * SCREEN_HEIGHT;
-		this.enemies.add(new Enemy(900, 150, 100, 5, Color.RED));// Color.rgb(255, 0, (int)(Math.random()*255))));
-
-		
-		this.enemies.add(new AssaultTrooper(900, SCREEN_HEIGHT - 100));// Color.rgb(255, 0, (int)(Math.random()*255))));
-
-		this.enemies.add(new Blob(900, SCREEN_HEIGHT*1.5));// Color.rgb(255, 0, (int)(Math.random()*255))));
-
-		
-		
-}
 
 	
 
 	private void update(GraphicsContext gc)
 	{
 		gc.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		gc.setFill(Color.SANDYBROWN);
-		gc.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
 		
 		List<Bullet> bulletsToRemove = new ArrayList<>();
 		List<Enemy> enemiesToRemove = new ArrayList<>();
 		List<Bullet> projectilesToRemove = new ArrayList<>();
 		
+		if (walls.get(0).checkCollision(player) != 0)
+		{
+			System.out.println("GOODD GAME");
+			endLevel(gc);
+		}
 		for (Wall w : walls)
 		{
 			w.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -252,6 +203,17 @@ public class Main extends Application
 
 			}
 		}
+		
+		List<HealthPU> healthPUsToRemove = new ArrayList<>();
+		for (HealthPU h : healthPUs)
+		{
+			if (h.checkCollision(player))
+			{
+				healthPUsToRemove.add(h);
+			}
+			h.render(gc);
+		}
+		healthPUs.removeAll(healthPUsToRemove);
 		
 		List<AmmoPU> ammoPUsToRemove = new ArrayList<>();
 		for (AmmoPU a : ammoPUs)
@@ -395,11 +357,16 @@ public class Main extends Application
 		if (player.getX() < cameraDistance && keysPressed.contains(KeyCode.A))
 		{
 			player.setX(cameraDistance);
+			//health pick ups
 			//weapon pick ups
 			//ammo pick ups
 			//enemies
 			//walls
 			
+			for (HealthPU h : healthPUs)
+			{
+				h.setX(h.getX() + player.getSpeed());
+			}
 			for (WeaponPU w : weaponPUs)
 			{
 				w.setX(w.getX() + player.getSpeed());
@@ -423,11 +390,16 @@ public class Main extends Application
 		{
 			player.setX(SCREEN_WIDTH - cameraDistance - player.getWidth());
 
+			//health pick ups
 			//weapon pick ups
 			//ammo pick ups
 			//enemies
 			//walls
 			
+			for (HealthPU h : healthPUs)
+			{
+				h.setX(h.getX() - player.getSpeed());
+			}
 			for (WeaponPU w : weaponPUs)
 			{
 				w.setX(w.getX() - player.getSpeed());
@@ -451,6 +423,10 @@ public class Main extends Application
 		{
 			player.setY(cameraDistance);
 			
+			for (HealthPU h : healthPUs)
+			{
+				h.setY(h.getY() + player.getSpeed());
+			}
 			for (WeaponPU w : weaponPUs)
 			{
 				w.setY(w.getY() + player.getSpeed());
@@ -472,6 +448,11 @@ public class Main extends Application
 		else if (player.getY() > SCREEN_HEIGHT - cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.S))
 		{
 			player.setY(SCREEN_HEIGHT - cameraDistance - player.getWidth());
+			
+			for (HealthPU h : healthPUs)
+			{
+				h.setY(h.getY() - player.getSpeed());
+			}
 			for (WeaponPU w : weaponPUs)
 			{
 				w.setY(w.getY() - player.getSpeed());
@@ -535,11 +516,11 @@ public class Main extends Application
 			//player sprint
 			if (keysPressed.contains(KeyCode.SHIFT))
 			{
-				player.setSpeed(5);
+				player.setSpeed(30);
 			}
 			else
 			{
-				player.setSpeed(3);
+				player.setSpeed(Player.getDefaultspeed());
 			}
 			
 			//weapon switching
@@ -622,20 +603,16 @@ public class Main extends Application
 	
 	private void endLevel(GraphicsContext gc)
 	{
-		if (enemies.isEmpty())
-		{
-			gc.setFont(Font.getDefault());
-			gc.setFont(Font.font(60));
-			gc.setFill(Color.RED);
-			String gameOver = "YOU WIN!";
-			double offset = gameOver.length() / 2;
-			gc.fillText(gameOver, SCREEN_WIDTH / 2 - offset*20, SCREEN_HEIGHT / 2);
-			gc.setFont(Font.getDefault());
-		}
-		if (!player.isAlive())
-		{
-			player.kill(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
-		}
+		gc.setFont(Font.getDefault());
+		gc.setFont(Font.font(60));
+		gc.setFill(Color.RED);
+		String gameOver = "YOU WIN!";
+		double offset = gameOver.length() / 2;
+		gc.fillText(gameOver, SCREEN_WIDTH / 2 - offset*20, SCREEN_HEIGHT / 2);
+		gc.setFont(Font.getDefault());
+		gameLoop.stop();
+
+
 	}
 
 }

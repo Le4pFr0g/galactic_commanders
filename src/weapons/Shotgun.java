@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 public class Shotgun extends Gun
 {
 	//full auto
-	static final int dmg = 5;
+	static final int dmg = 10;
 	static int fireRate = 100;
 	static int bSpeed = 2;
 	static int defaultAmmo = 10;

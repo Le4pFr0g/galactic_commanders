@@ -14,7 +14,9 @@ public class Player extends MovingObject
 {
 
 	private static final double defaultWidth = 50;
-    private int hp;
+	private static final double defaultSpeed = 5;
+
+	private int hp;
 	private List<Gun> guns = new ArrayList<>();
 	private Gun equippedWeapon;
 	private boolean isAlive = true;
@@ -22,7 +24,7 @@ public class Player extends MovingObject
 	public Player(double x, double y, int hp)
 	{
 		//default speed is 3
-		super(x, y, defaultWidth, 3);
+		super(x, y, defaultWidth, defaultSpeed);
 		this.hp = hp;
 		
 		addGunsToInventory();
@@ -271,6 +273,12 @@ public class Player extends MovingObject
 	public void setGuns(List<Gun> guns)
 	{
 		this.guns = guns;
+	}
+	
+
+    public static double getDefaultspeed()
+	{
+		return defaultSpeed;
 	}
 
 }
