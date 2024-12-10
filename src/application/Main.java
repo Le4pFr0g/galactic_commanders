@@ -1,29 +1,28 @@
 package application;
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gson.*;
+
 import bullets.Bullet;
 import entity.Player;
 import entity.Wall;
-import entity.enemies.AssaultTrooper;
-import entity.enemies.Blob;
 import entity.enemies.Enemy;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import maps.Maps;
 import pickups.AmmoPU;
@@ -32,12 +31,7 @@ import pickups.WeaponPU;
 import weapons.Gun;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 import javafx.geometry.Insets;
 
 public class Main extends Application
@@ -50,7 +44,7 @@ public class Main extends Application
     private AnimationTimer gameLoop;
     private AnimationTimer inputHandler;
 	private int cameraDistance = 150;
-
+	
 
 	//user input
 	private Set<KeyCode> keysPressed = new HashSet<>();
@@ -69,8 +63,21 @@ public class Main extends Application
 
 	public static void main(String[] args)
 	{
+		//Gson gson = new Gson();
+		
+		String gsonString = "name: 'nick prioli', age: 19";
+		
+		Person person = new Person("John", 30);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(person);
+
+        System.out.println(json); // {"name":"John","age":30}
 		launch(args);
+
+		
 	}
+	
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
@@ -161,11 +168,7 @@ public class Main extends Application
 		List<Enemy> enemiesToRemove = new ArrayList<>();
 		List<Bullet> projectilesToRemove = new ArrayList<>();
 		
-		if (walls.get(0).checkCollision(player) != 0)
-		{
-			System.out.println("GOODD GAME");
-			endLevel(gc);
-		}
+		
 		for (Wall w : walls)
 		{
 			w.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -337,6 +340,10 @@ public class Main extends Application
 			player.getEquippedWeapon().render(gc, player, Color.LIGHTGRAY);
 		}
 		
+		if (walls.get(0).checkCollision(player) != 0)
+		{
+			endLevel(gc);
+		}
 
 	}
 	
@@ -603,16 +610,31 @@ public class Main extends Application
 	
 	private void endLevel(GraphicsContext gc)
 	{
+		gameLoop.stop();
 		gc.setFont(Font.getDefault());
 		gc.setFont(Font.font(60));
 		gc.setFill(Color.RED);
 		String gameOver = "YOU WIN!";
 		double offset = gameOver.length() / 2;
 		gc.fillText(gameOver, SCREEN_WIDTH / 2 - offset*20, SCREEN_HEIGHT / 2);
+//		gc.setFill(Color.CORNFLOWERBLUE);
+//		gc.fillRect(50, 50, 300, 300);
 		gc.setFont(Font.getDefault());
-		gameLoop.stop();
+//		String text = "Hello, World!";
+//        String fileName = "saveFile.txt";
+//
+//        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) 
+//        {
+//            writer.write(text);
+//        } 
+//        catch (IOException e) 
+//        {
+//            e.printStackTrace();
+//        }
 
 
 	}
 
 }
+
+
