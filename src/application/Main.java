@@ -1,12 +1,14 @@
 package application;
 
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gson.*;
+import org.json.JSONObject;
 
 import bullets.Bullet;
 import entity.Player;
@@ -63,19 +65,22 @@ public class Main extends Application
 
 	public static void main(String[] args)
 	{
-		//Gson gson = new Gson();
-		
-		String gsonString = "name: 'nick prioli', age: 19";
-		
-		Person person = new Person("John", 30);
+		String garbage = "Im Garbage its saved bro";
+        Boolean cool = false;
 
-        Gson gson = new Gson();
-        String json = gson.toJson(person);
+        // Create a JSON object
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("Garbage name", garbage);
+        jsonObject.put("Cool", cool);
 
-        System.out.println(json); // {"name":"John","age":30}
-		launch(args);
-
-		
+        try {
+            // Save JSON to a file
+            Files.writeString(Path.of("data.json"), jsonObject.toString(4)); // Pretty print with indentation
+            System.out.println("Data saved to data.json");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		//launch(args);
 	}
 	
 
