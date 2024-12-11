@@ -38,6 +38,8 @@ public class Maps
 	{
 		addMapBorder(walls, sW, sH);
 		walls.add(0, new ExitWall(450, 50, 200, 200));
+		player.setX(250);
+		player.setY(100);
 		
 		//Vertical
 		walls.add(new Wall(sW + 300, 50, 50, 2*sH, Color.GRAY));

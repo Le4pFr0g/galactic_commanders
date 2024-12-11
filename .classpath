@@ -16,7 +16,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/COMP-296 Project/gson/json-20240303.jar">
+	<classpathentry kind="lib" path="C:/JavaFX for capstone/json/json-20240303.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>

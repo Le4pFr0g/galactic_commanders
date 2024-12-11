@@ -11,6 +11,6 @@
         false,
         false
     ],
-    "levelCompleted": 1,
-    "playerHP": 90
+    "levelCompleted": 2,
+    "playerHP": 60
 }
