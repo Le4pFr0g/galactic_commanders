@@ -1,6 +1,9 @@
 package application;
 
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -8,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import bullets.Bullet;
@@ -45,7 +49,8 @@ public class Main extends Application
     private final double SCREEN_HEIGHT = 900;
     private AnimationTimer gameLoop;
     private AnimationTimer inputHandler;
-	private int cameraDistance = 150;
+	private int cameraDistance = 100;
+	private int mapNumber = 2;
 	
 
 	//user input
@@ -65,22 +70,7 @@ public class Main extends Application
 
 	public static void main(String[] args)
 	{
-		String garbage = "Im Garbage its saved bro";
-        Boolean cool = false;
-
-        // Create a JSON object
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Garbage name", garbage);
-        jsonObject.put("Cool", cool);
-
-        try {
-            // Save JSON to a file
-            Files.writeString(Path.of("data.json"), jsonObject.toString(4)); // Pretty print with indentation
-            System.out.println("Data saved to data.json");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-		//launch(args);
+		launch(args);
 	}
 	
 
@@ -125,6 +115,9 @@ public class Main extends Application
 			}
 	
 		};
+		
+		loadMap(mapNumber);
+
 		inputHandler.start();
 		gameLoop = new AnimationTimer()
 		{
@@ -138,8 +131,6 @@ public class Main extends Application
 		};
 		gameLoop.start();
 
-		Maps.createMap2(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
-		
 	    System.out.println(SCREEN_WIDTH);
 	    System.out.println(SCREEN_HEIGHT);
 
@@ -164,6 +155,18 @@ public class Main extends Application
 	
 
 	
+
+	private void loadMap(int i)
+	{
+		if (i == 1 || i == 0)
+			Maps.createMap1(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
+		if (i == 2)
+		{
+			Maps.createMap2(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
+		}
+		
+	}
+
 
 	private void update(GraphicsContext gc)
 	{
@@ -366,9 +369,9 @@ public class Main extends Application
 //		gc.fillRect(0, SCREEN_HEIGHT-cameraDistance, SCREEN_WIDTH, cameraDistance);
 
 
-		if (player.getX() < cameraDistance && keysPressed.contains(KeyCode.A))
+		if (player.getX() < 2*cameraDistance && keysPressed.contains(KeyCode.A))
 		{
-			player.setX(cameraDistance);
+			player.setX(2*cameraDistance);
 			//health pick ups
 			//weapon pick ups
 			//ammo pick ups
@@ -398,9 +401,9 @@ public class Main extends Application
 			
 			
 		}
-		else if (player.getX() > SCREEN_WIDTH - cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.D))
+		else if (player.getX() > SCREEN_WIDTH - 2*cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.D))
 		{
-			player.setX(SCREEN_WIDTH - cameraDistance - player.getWidth());
+			player.setX(SCREEN_WIDTH - 2*cameraDistance - player.getWidth());
 
 			//health pick ups
 			//weapon pick ups
@@ -625,19 +628,40 @@ public class Main extends Application
 //		gc.setFill(Color.CORNFLOWERBLUE);
 //		gc.fillRect(50, 50, 300, 300);
 		gc.setFont(Font.getDefault());
-//		String text = "Hello, World!";
-//        String fileName = "saveFile.txt";
-//
-//        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) 
-//        {
-//            writer.write(text);
-//        } 
-//        catch (IOException e) 
-//        {
-//            e.printStackTrace();
-//        }
+		String text = "Hello, World!";
+        String fileName = "saveFile.txt";
+        
+        int playerHP = player.getHp();
+        boolean[] weaponsObtained = new boolean[player.getGuns().size()];
+        int[] ammo = new int[player.getGuns().size()];
+        for (int i = 0; i < player.getGuns().size(); i++)
+        {
+        	weaponsObtained[i] = player.getGuns().get(i).isPickedUp();
+        	ammo[i] = player.getGuns().get(i).getAmmo();
+        }
+
+        // Create a JSON object
+        JSONObject saveData = new JSONObject();
+        saveData.put("weaponsObtained", weaponsObtained);
+        saveData.put("ammo", ammo);
+        saveData.put("playerHealth", playerHP);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) 
+        {
+            writer.write(saveData.toString(4));
+        } 
+        catch (IOException e) 
+        {
+            e.printStackTrace();
+        }
+        System.out.println(saveData.get("ammo"));
+//        JSONArray ammo1 = saveData.getJSONArray("weaponsObtained");
+//        
+//        System.out.println(ammo1.getInt(0));
 
 
+        loadMap(++mapNumber);
+        gameLoop.start();
 	}
 
 }

@@ -37,6 +37,7 @@ public class Maps
 	public static void createMap1(double sW, double sH, Player player, ArrayList<Wall> walls, ArrayList<Enemy> enemies, ArrayList<HealthPU> healthPUs, ArrayList<WeaponPU> weaponPUs, ArrayList<AmmoPU> ammoPUs)
 	{
 		addMapBorder(walls, sW, sH);
+		walls.add(new ExitWall(2*sW - 500, sH, 500, 500));
 		
 		//Vertical
 		walls.add(new Wall(sW + 300, 50, 50, 2*sH, Color.GRAY));

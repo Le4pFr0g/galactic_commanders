@@ -1,1 +1,15 @@
-Hello, World!
+{
+    "ammo": [
+        10,
+        10,
+        10,
+        10
+    ],
+    "weaponsObtained": [
+        false,
+        false,
+        false,
+        false
+    ],
+    "playerHealth": 90
+}
