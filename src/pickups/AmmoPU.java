@@ -10,11 +10,12 @@ public class AmmoPU extends PickUp
 	private int weaponID;
 	private int value;
 	private Image img;
+	private static Color defaultColor = Color.BLACK;// just like weapon pick up, it is only used for supertype purposes and is overriden quickly
 
 
-	public AmmoPU(double x, double y, int weaponID, int value, Color color)
+	public AmmoPU(double x, double y, int weaponID, int value)
 	{
-		super(x, y, 30, color);
+		super(x, y, 30, defaultColor);
 		this.weaponID = weaponID;
 		this.value = value;
 		
@@ -27,6 +28,8 @@ public class AmmoPU extends PickUp
 			            true,  // Preserve aspect ratio
 			            true   // Smooth scaling
 			            );
+				this.color = Color.DARKSLATEGRAY;
+
 				break;
 			case 1:
 				img = new Image(getClass().getResource("/images/shells.png").toExternalForm(), 
@@ -35,6 +38,8 @@ public class AmmoPU extends PickUp
 			            true,  // Preserve aspect ratio
 			            true   // Smooth scaling
 			            );
+				this.color = Color.PURPLE;
+
 				break;
 			case 2:
 				img = new Image(getClass().getResource("/images/assault_rifle_mag.png").toExternalForm(), 
@@ -43,6 +48,8 @@ public class AmmoPU extends PickUp
 			            true,  // Preserve aspect ratio
 			            true   // Smooth scaling
 			            );
+				this.color = Color.DARKBLUE;
+
 				break;
 			case 3:
 				img = new Image(getClass().getResource("/images/rocket.png").toExternalForm(), 
@@ -51,6 +58,8 @@ public class AmmoPU extends PickUp
 			            true,  // Preserve aspect ratio
 			            true   // Smooth scaling
 			            );
+				this.color = Color.DARKORANGE;
+
 				break;
 		}
 		

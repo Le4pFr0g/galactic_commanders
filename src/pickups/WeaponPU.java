@@ -10,12 +10,14 @@ public class WeaponPU extends PickUp
 	private int weaponID;
 	private int value;
 	private Image img;
+	//this is only used for creating the supertype, it gets overridden when we know what weapon it is
+	private static Color defaultColor = Color.BLACK;
 
 	
-	public WeaponPU(double x, double y, int weaponID, int value, Color color)
+	public WeaponPU(double x, double y, int weaponID, int value)
 	{
 		
-		super(x, y, 50, color);
+		super(x, y, 50, defaultColor);
 		this.weaponID = weaponID;
 		this.value = value;
 		
@@ -23,35 +25,42 @@ public class WeaponPU extends PickUp
 		{
 			case 0:
 				img = new Image(getClass().getResource("/images/pistol.png").toExternalForm(), 
-						50,  // Desired width
-			            50,  // Desired height
+						50,  //width
+			            50,  //height
 			            true,  // Preserve aspect ratio
 			            true   // Smooth scaling
 			            );
+				this.color = Color.DARKSLATEGRAY;
 				break;
 			case 1:
 				img = new Image(getClass().getResource("/images/shotgun.png").toExternalForm(), 
-						75,  // Desired width
-			            75,  // Desired height
-			            true,  // Preserve aspect ratio
-			            true   // Smooth scaling
+						75,  //width
+			            75,  //height
+			            true,  //Preserve aspect ratio
+			            true   //Smooth scaling
 			            );
+				this.color = Color.PURPLE;
+
 				break;
 			case 2:
 				img = new Image(getClass().getResource("/images/assault_rifle.png").toExternalForm(), 
-						100,  // Desired width
-			            100,  // Desired height
-			            true,  // Preserve aspect ratio
-			            true   // Smooth scaling
+						100,  //width
+			            100,  //height
+			            true,  //Preserve aspect ratio
+			            true   //Smooth scaling
 			            );
+				this.color = Color.DARKBLUE;
+
 				break;
 			case 3:
 				img = new Image(getClass().getResource("/images/rocket_launcer.png").toExternalForm(), 
-						50,  // Desired width
-			            50,  // Desired height
+						50,  //width
+			            50,  //height
 			            true,  // Preserve aspect ratio
 			            true   // Smooth scaling
 			            );
+				this.color = Color.DARKORANGE;
+
 				break;
 		}
 		

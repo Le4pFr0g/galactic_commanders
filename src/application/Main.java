@@ -1,18 +1,16 @@
 package application;
 
-
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.*;
 
 import bullets.Bullet;
 import entity.Player;
@@ -42,37 +40,33 @@ import javafx.geometry.Insets;
 
 public class Main extends Application
 {
-	//system controls
+	// system controls
 //    private final double SCREEN_WIDTH = Screen.getPrimary().getBounds().getWidth();// * 0.5;
 //    private final double SCREEN_HEIGHT = Screen.getPrimary().getBounds().getHeight();// * 0.5;
-    private final double SCREEN_WIDTH = 1600;
-    private final double SCREEN_HEIGHT = 900;
-    private AnimationTimer gameLoop;
-    private AnimationTimer inputHandler;
+	private final double SCREEN_WIDTH = 1600;
+	private final double SCREEN_HEIGHT = 900;
+	private AnimationTimer gameLoop;
+	private AnimationTimer inputHandler;
 	private int cameraDistance = 100;
-	private int mapNumber = 2;
-	
+	private int mapNumber = 1;
 
-	//user input
+	// user input
 	private Set<KeyCode> keysPressed = new HashSet<>();
 	private double mouseX, mouseY;
 	private boolean isShooting = false;
-	
-	//game objects
+
+	// game objects
 	private Player player;
 	private ArrayList<Enemy> enemies = new ArrayList<>();
 	private ArrayList<AmmoPU> ammoPUs = new ArrayList<>();
 	private ArrayList<WeaponPU> weaponPUs = new ArrayList<>();
 	private ArrayList<HealthPU> healthPUs = new ArrayList<>();
 	private ArrayList<Wall> walls = new ArrayList<>();
-	
-
 
 	public static void main(String[] args)
 	{
 		launch(args);
 	}
-	
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
@@ -83,8 +77,7 @@ public class Main extends Application
 		Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 		canvas.setFocusTraversable(true);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
-		
-		
+
 //		 // Load an image
 //        Image backgroundImage = new Image(getClass().getResource("/desert_sand.jpg").toExternalForm()); // Adjust path as necessary
 //
@@ -113,9 +106,9 @@ public class Main extends Application
 			{
 				handleControls(gc);
 			}
-	
+
 		};
-		
+
 		loadMap(mapNumber);
 
 		inputHandler.start();
@@ -131,8 +124,8 @@ public class Main extends Application
 		};
 		gameLoop.start();
 
-	    System.out.println(SCREEN_WIDTH);
-	    System.out.println(SCREEN_HEIGHT);
+		System.out.println(SCREEN_WIDTH);
+		System.out.println(SCREEN_HEIGHT);
 
 		Scene scene = new Scene(pane, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -146,42 +139,48 @@ public class Main extends Application
 		scene.setOnMouseReleased(this::handleMouseReleased);
 
 		primaryStage.setTitle("Galactic Commanders");
-		//primaryStage.setFullScreen(true);
+		// primaryStage.setFullScreen(true);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
 	}
-	
-	
-
-	
 
 	private void loadMap(int i)
 	{
-		if (i == 1 || i == 0)
+		System.out.println("loading level " + i);
+		walls.clear();
+		enemies.clear();
+		healthPUs.clear();
+		weaponPUs.clear();
+		ammoPUs.clear();
+
+		if (i == 1)
 			Maps.createMap1(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
-		if (i == 2)
+		else if (i == 2)
 		{
 			Maps.createMap2(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
 		}
-		
-	}
+		else
+		{
+			this.mapNumber = 1;
+			loadMap(mapNumber);
+		}
 
+	}
 
 	private void update(GraphicsContext gc)
 	{
 		gc.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		
+
 		List<Bullet> bulletsToRemove = new ArrayList<>();
 		List<Enemy> enemiesToRemove = new ArrayList<>();
 		List<Bullet> projectilesToRemove = new ArrayList<>();
-		
-		
+
 		for (Wall w : walls)
 		{
 			w.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			w.checkCollision(player);
-			
+
 			for (Gun g : player.getGuns())
 			{
 				for (Bullet b : g.getBullets())
@@ -189,24 +188,25 @@ public class Main extends Application
 					if (w.checkCollision(b) != 0)
 					{
 						bulletsToRemove.add(b);
-						//System.out.println("BYE BULLET");
+						// System.out.println("BYE BULLET");
 					}
 				}
 				if (bulletsToRemove.size() > 0)
-				g.getBullets().remove(bulletsToRemove);
+					g.getBullets().remove(bulletsToRemove);
 			}
-			
+
 			for (Enemy e : enemies)
 			{
 
-				//TO DO: improve path finding. check collision returns an int that can be used to determine where to go
+				// TO DO: improve path finding. check collision returns an int that can be used
+				// to determine where to go
 				w.checkCollision(e);
 				for (Bullet p : e.getProjectiles())
 				{
 					if (w.checkCollision(p) != 0)
 					{
 						projectilesToRemove.add(p);
-						//System.out.println("BYE PROJECTILE");
+						// System.out.println("BYE PROJECTILE");
 					}
 				}
 				if (projectilesToRemove.size() > 0)
@@ -214,7 +214,7 @@ public class Main extends Application
 
 			}
 		}
-		
+
 		List<HealthPU> healthPUsToRemove = new ArrayList<>();
 		for (HealthPU h : healthPUs)
 		{
@@ -225,7 +225,7 @@ public class Main extends Application
 			h.render(gc);
 		}
 		healthPUs.removeAll(healthPUsToRemove);
-		
+
 		List<AmmoPU> ammoPUsToRemove = new ArrayList<>();
 		for (AmmoPU a : ammoPUs)
 		{
@@ -237,7 +237,6 @@ public class Main extends Application
 		}
 		ammoPUs.removeAll(ammoPUsToRemove);
 
-		
 		List<WeaponPU> weaponPUsToRemove = new ArrayList<>();
 		for (WeaponPU w : weaponPUs)
 		{
@@ -245,23 +244,21 @@ public class Main extends Application
 			{
 				weaponPUsToRemove.add(w);
 			}
-			
+
 			w.render(gc);
 		}
 		weaponPUs.removeAll(weaponPUsToRemove);
 
-
-		
-		//check if any player bullet hits enemy
+		// check if any player bullet hits enemy
 		for (Gun g : player.getGuns())
 		{
 			if (g.isPickedUp())
 			{
-				
+
 				for (Bullet b : g.getBullets())
 				{
 					b.updatePos();
-					
+
 					if (g.isSplashGun())
 					{
 
@@ -269,11 +266,9 @@ public class Main extends Application
 						{
 							System.out.println("Rocket");
 
-
 							bulletsToRemove.add(b);
 						}
 
-						
 					}
 					else
 					{
@@ -281,28 +276,28 @@ public class Main extends Application
 						{
 							if (b.checkCollision(e))
 							{
-								//System.out.println("HIT ENEMY");
+								// System.out.println("HIT ENEMY");
 								bulletsToRemove.add(b);
-								b.damageEnemy(e, g.getDmg());	
-			
+								b.damageEnemy(e, g.getDmg());
+
 							}
 						}
 					}
-				}	
+				}
 			}
-			//System.out.println(bulletsToRemove);
+			// System.out.println(bulletsToRemove);
 
 			g.getBullets().removeAll(bulletsToRemove);
 		}
 
-		//check if enemy projectile hits player
+		// check if enemy projectile hits player
 		for (Enemy e : enemies)
 		{
 			for (Bullet p : e.getProjectiles())
 			{
 				if (p.checkCollision(player))
 				{
-					//System.out.println("HIT PLAYER");
+					// System.out.println("HIT PLAYER");
 					player.setHp(player.getHp() - e.getDmg());
 					projectilesToRemove.add(p);
 					gc.setFill(new Color(.3, 0.0, 0.0, 0.15));
@@ -311,17 +306,15 @@ public class Main extends Application
 
 			}
 			e.getProjectiles().removeAll(projectilesToRemove);
-			
-			//checks if enemy is dead, if so remove them
+
+			// checks if enemy is dead, if so remove them
 			if (e.getHp() <= 0)
 			{
 				enemiesToRemove.add(e);
 			}
 		}
 
-		
 		enemies.removeAll(enemiesToRemove);
-		
 
 		for (Enemy e : enemies)
 		{
@@ -341,23 +334,21 @@ public class Main extends Application
 			e.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			e.isTouchingWall();
 		}
-		
+
 		if (player.getEquippedWeapon() != null)
 		{
 			player.getEquippedWeapon().fireCooldown();
 			player.getEquippedWeapon().render(gc, player, Color.LIGHTGRAY);
 		}
-		
+
 		if (walls.get(0).checkCollision(player) != 0)
 		{
+			System.out.println("LEVEL FINSIHED");
 			endLevel(gc);
 		}
 
 	}
-	
-	
-	
-	
+
 	private void cameraUpdate(GraphicsContext gc)
 	{
 //		gc.setFill(Color.BLACK);
@@ -368,16 +359,15 @@ public class Main extends Application
 //		gc.fillRect(0, 0, SCREEN_WIDTH, cameraDistance);
 //		gc.fillRect(0, SCREEN_HEIGHT-cameraDistance, SCREEN_WIDTH, cameraDistance);
 
-
-		if (player.getX() < 2*cameraDistance && keysPressed.contains(KeyCode.A))
+		if (player.getX() < 2 * cameraDistance && keysPressed.contains(KeyCode.A))
 		{
-			player.setX(2*cameraDistance);
-			//health pick ups
-			//weapon pick ups
-			//ammo pick ups
-			//enemies
-			//walls
-			
+			player.setX(2 * cameraDistance);
+			// health pick ups
+			// weapon pick ups
+			// ammo pick ups
+			// enemies
+			// walls
+
 			for (HealthPU h : healthPUs)
 			{
 				h.setX(h.getX() + player.getSpeed());
@@ -398,19 +388,19 @@ public class Main extends Application
 			{
 				w.setX(w.getX() + player.getSpeed());
 			}
-			
-			
-		}
-		else if (player.getX() > SCREEN_WIDTH - 2*cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.D))
-		{
-			player.setX(SCREEN_WIDTH - 2*cameraDistance - player.getWidth());
 
-			//health pick ups
-			//weapon pick ups
-			//ammo pick ups
-			//enemies
-			//walls
-			
+		}
+		else if (player.getX() > SCREEN_WIDTH - 2 * cameraDistance - player.getWidth()
+				&& keysPressed.contains(KeyCode.D))
+		{
+			player.setX(SCREEN_WIDTH - 2 * cameraDistance - player.getWidth());
+
+			// health pick ups
+			// weapon pick ups
+			// ammo pick ups
+			// enemies
+			// walls
+
 			for (HealthPU h : healthPUs)
 			{
 				h.setX(h.getX() - player.getSpeed());
@@ -431,13 +421,13 @@ public class Main extends Application
 			{
 				w.setX(w.getX() - player.getSpeed());
 			}
-			
+
 		}
-		
+
 		if (player.getY() < cameraDistance && keysPressed.contains(KeyCode.W))
 		{
 			player.setY(cameraDistance);
-			
+
 			for (HealthPU h : healthPUs)
 			{
 				h.setY(h.getY() + player.getSpeed());
@@ -459,11 +449,11 @@ public class Main extends Application
 				w.setY(w.getY() + player.getSpeed());
 			}
 		}
-		
+
 		else if (player.getY() > SCREEN_HEIGHT - cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.S))
 		{
 			player.setY(SCREEN_HEIGHT - cameraDistance - player.getWidth());
-			
+
 			for (HealthPU h : healthPUs)
 			{
 				h.setY(h.getY() - player.getSpeed());
@@ -485,8 +475,7 @@ public class Main extends Application
 				w.setY(w.getY() - player.getSpeed());
 			}
 		}
-		
-		
+
 	}
 
 	private void handleControls(GraphicsContext gc)
@@ -498,37 +487,36 @@ public class Main extends Application
 		}
 		else
 		{
-			
-			//player movement
+
+			// player movement
 			if (keysPressed.contains(KeyCode.W))
 			{
-				//System.out.println(player.getX() + ", " + player.getY());
+				// System.out.println(player.getX() + ", " + player.getY());
 				this.player.move(0, -player.getSpeed(), SCREEN_WIDTH, SCREEN_HEIGHT, cameraDistance, enemies);
 
 			}
 			if (keysPressed.contains(KeyCode.S))
 			{
-				//System.out.println(player.getX() + ", " + player.getY());
+				// System.out.println(player.getX() + ", " + player.getY());
 
 				this.player.move(0, player.getSpeed(), SCREEN_WIDTH, SCREEN_HEIGHT, cameraDistance, enemies);
 
 			}
 			if (keysPressed.contains(KeyCode.A))
 			{
-				//System.out.println(player.getX() + ", " + player.getY());
+				// System.out.println(player.getX() + ", " + player.getY());
 				this.player.move(-player.getSpeed(), 0, SCREEN_WIDTH, SCREEN_HEIGHT, cameraDistance, enemies);
-
 
 			}
 			if (keysPressed.contains(KeyCode.D))
 			{
-				//System.out.println(player.getX() + ", " + player.getY());
+				// System.out.println(player.getX() + ", " + player.getY());
 
 				this.player.move(player.getSpeed(), 0, SCREEN_WIDTH, SCREEN_HEIGHT, cameraDistance, enemies);
 
 			}
-			
-			//player sprint
+
+			// player sprint
 			if (keysPressed.contains(KeyCode.SHIFT))
 			{
 				player.setSpeed(30);
@@ -537,35 +525,35 @@ public class Main extends Application
 			{
 				player.setSpeed(Player.getDefaultspeed());
 			}
-			
-			//weapon switching
-			if(keysPressed.contains(KeyCode.DIGIT1))
+
+			// weapon switching
+			if (keysPressed.contains(KeyCode.DIGIT1))
 			{
 				if (this.player.getGuns().get(0).isPickedUp())
-				this.player.swapWeapon(0);
+					this.player.swapWeapon(0);
 			}
-			if(keysPressed.contains(KeyCode.DIGIT2))
+			if (keysPressed.contains(KeyCode.DIGIT2))
 			{
 				if (this.player.getGuns().get(1).isPickedUp())
-				this.player.swapWeapon(1);
+					this.player.swapWeapon(1);
 			}
-			if(keysPressed.contains(KeyCode.DIGIT3))
+			if (keysPressed.contains(KeyCode.DIGIT3))
 			{
 				if (this.player.getGuns().get(2).isPickedUp())
-				this.player.swapWeapon(2);
+					this.player.swapWeapon(2);
 			}
-			if(keysPressed.contains(KeyCode.DIGIT4))
+			if (keysPressed.contains(KeyCode.DIGIT4))
 			{
 				if (this.player.getGuns().get(3).isPickedUp())
-				this.player.swapWeapon(3);
+					this.player.swapWeapon(3);
 			}
-			
-			//player shooting
+
+			// player shooting
 			if (isShooting && player.getEquippedWeapon() != null)
 			{
 				this.player.getEquippedWeapon().shoot(player, mouseX, mouseY);
 			}
-			
+
 			if (keysPressed.contains(KeyCode.ESCAPE))
 			{
 				gameLoop.stop();
@@ -576,7 +564,7 @@ public class Main extends Application
 			}
 		}
 	}
-	
+
 	private void handleKeyPressed(KeyEvent event)
 	{
 		keysPressed.add(event.getCode());
@@ -605,7 +593,7 @@ public class Main extends Application
 	{
 		isShooting = false;
 		if (player.getEquippedWeapon() != null)
-		player.getEquippedWeapon().setShooting(false);
+			player.getEquippedWeapon().setShooting(false);
 
 	}
 
@@ -615,7 +603,7 @@ public class Main extends Application
 		mouseY = event.getSceneY();
 //		System.out.println(mouseX + ", " + mouseY);
 	}
-	
+
 	private void endLevel(GraphicsContext gc)
 	{
 		gameLoop.stop();
@@ -624,46 +612,88 @@ public class Main extends Application
 		gc.setFill(Color.RED);
 		String gameOver = "YOU WIN!";
 		double offset = gameOver.length() / 2;
-		gc.fillText(gameOver, SCREEN_WIDTH / 2 - offset*20, SCREEN_HEIGHT / 2);
-//		gc.setFill(Color.CORNFLOWERBLUE);
-//		gc.fillRect(50, 50, 300, 300);
+		gc.fillText(gameOver, SCREEN_WIDTH / 2 - offset * 20, SCREEN_HEIGHT / 2);
 		gc.setFont(Font.getDefault());
-		String text = "Hello, World!";
-        String fileName = "saveFile.txt";
-        
-        int playerHP = player.getHp();
-        boolean[] weaponsObtained = new boolean[player.getGuns().size()];
-        int[] ammo = new int[player.getGuns().size()];
-        for (int i = 0; i < player.getGuns().size(); i++)
-        {
-        	weaponsObtained[i] = player.getGuns().get(i).isPickedUp();
-        	ammo[i] = player.getGuns().get(i).getAmmo();
-        }
 
-        // Create a JSON object
-        JSONObject saveData = new JSONObject();
-        saveData.put("weaponsObtained", weaponsObtained);
-        saveData.put("ammo", ammo);
-        saveData.put("playerHealth", playerHP);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) 
-        {
-            writer.write(saveData.toString(4));
-        } 
-        catch (IOException e) 
-        {
-            e.printStackTrace();
-        }
-        System.out.println(saveData.get("ammo"));
-//        JSONArray ammo1 = saveData.getJSONArray("weaponsObtained");
-//        
-//        System.out.println(ammo1.getInt(0));
+		String fileName = "saveFile.txt";
 
+		int mapCompleted = this.mapNumber;
+		int playerHP = player.getHp();
+		JSONArray weaponsObtained = new JSONArray();
+		JSONArray ammo = new JSONArray();
+		for (int i = 0; i < player.getGuns().size(); i++)
+		{
+			weaponsObtained.put(player.getGuns().get(i).isPickedUp());
+			ammo.put(player.getGuns().get(i).getAmmo());
+		}
+
+		// Create a JSON object
+		JSONObject saveData = new JSONObject();
+		saveData.put("levelCompleted", mapCompleted);
+		saveData.put("weaponsObtained", weaponsObtained);
+		saveData.put("ammo", ammo);
+		saveData.put("playerHP", playerHP);
+
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName)))
+		{
+			writer.write(saveData.toString(4));
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		loadData(fileName);
 
         loadMap(++mapNumber);
         gameLoop.start();
 	}
 
+	private void loadData(String fileName)
+	{
+		JSONObject loadData = null;
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileName)))
+		{
+			StringBuilder loadDataText = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				loadDataText.append(line);
+			}
+			String simplifiedText = loadDataText.toString().replaceAll("\\s+", ""); // for debugging purposes
+			loadDataText = new StringBuilder(simplifiedText);
+
+			loadData = new JSONObject(loadDataText.toString());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		
+		// Use the loaded data
+		if (loadData != null)
+		{
+			// Access the ammo array
+			JSONArray loadedWeapons = loadData.getJSONArray("weaponsObtained");
+			JSONArray loadedAmmo = loadData.getJSONArray("ammo");
+			int playerHealth = loadData.getInt("playerHP");
+			int mapCompleted = loadData.getInt("levelCompleted");
+
+			// set the stats to the save file stats
+			player.setHp(playerHealth);
+
+			for (int i = 0; i < player.getGuns().size(); i++)
+			{
+				player.getGuns().get(i).setPickedUp(loadedWeapons.getBoolean(i));
+				player.getGuns().get(i).setAmmo(loadedAmmo.getInt(i));
+			}
+			
+			this.mapNumber = mapCompleted;
+			System.out.println("map from file: " + mapNumber);
+
+		}
+	}
+
 }
-
-

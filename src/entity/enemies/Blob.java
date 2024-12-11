@@ -33,7 +33,6 @@ public class Blob extends Enemy
 		
 				if (shootingCooldown == 0 || shootingCooldown == delay || shootingCooldown == 2*delay)
 				{
-					System.out.println(shootingCooldown);
 					projectiles.add(new Bullet(angle, this.x + width / 2, this.y + width / 2, projectileSpeed, Color.DARKRED));
 					projectiles.add(new Bullet(angle - Math.toRadians(10), this.x + width / 2, this.y + width / 2, projectileSpeed, Color.DARKRED));
 					projectiles.add(new Bullet(angle + Math.toRadians(10), this.x + width / 2, this.y + width / 2, projectileSpeed, Color.DARKRED));

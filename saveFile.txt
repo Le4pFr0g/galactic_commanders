@@ -11,5 +11,6 @@
         false,
         false
     ],
-    "playerHealth": 90
+    "levelCompleted": 1,
+    "playerHP": 90
 }

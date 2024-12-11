@@ -23,7 +23,7 @@ public class Maps
 		walls.add(new Wall(0, 50, 50, 2*sH, Color.GRAY));
 		
 		//right
-		walls.add(new Wall(2*sW, 0, 50, 2*sH, Color.GRAY));
+		walls.add(new Wall(2*sW, 50, 50, 2*sH, Color.GRAY));
 		
 		//Horizontal
 		//top
@@ -37,7 +37,7 @@ public class Maps
 	public static void createMap1(double sW, double sH, Player player, ArrayList<Wall> walls, ArrayList<Enemy> enemies, ArrayList<HealthPU> healthPUs, ArrayList<WeaponPU> weaponPUs, ArrayList<AmmoPU> ammoPUs)
 	{
 		addMapBorder(walls, sW, sH);
-		walls.add(new ExitWall(2*sW - 500, sH, 500, 500));
+		walls.add(0, new ExitWall(450, 50, 200, 200));
 		
 		//Vertical
 		walls.add(new Wall(sW + 300, 50, 50, 2*sH, Color.GRAY));
@@ -64,16 +64,16 @@ public class Maps
 		
 		//weapons
 		int offset = 75;
-		ammoPUs.add(new AmmoPU(sW/2 - 200 + offset, sH+300 + offset, 0, 10, Color.PURPLE));
-		ammoPUs.add(new AmmoPU(680, 330, 1, 10, Color.DARKBLUE));
-		ammoPUs.add(new AmmoPU(sW/2 - 300 + offset/2, sH - 2*offset, 2, 10, Color.GREEN));
-		ammoPUs.add(new AmmoPU(100 + offset, sH*2 - 100, 3, 10, Color.MEDIUMPURPLE));
+		ammoPUs.add(new AmmoPU(sW/2 - 200 + offset, sH+300 + offset, 0, 10));
+		ammoPUs.add(new AmmoPU(680, 330, 1, 10));
+		ammoPUs.add(new AmmoPU(sW/2 - 300 + offset/2, sH - 2*offset, 2, 10));
+		ammoPUs.add(new AmmoPU(100 + offset, sH*2 - 100, 3, 10));
 		
 		//ammo
-		weaponPUs.add(new WeaponPU(sW/2 - 200 + offset, sH+300 + offset/4, 0, 10, Color.PURPLE));
-		weaponPUs.add(new WeaponPU(680, 380, 1, 10, Color.DARKBLUE));
-		weaponPUs.add(new WeaponPU(sW/2 - 300 + offset/2, sH - offset, 2, 10, Color.GREEN));
-		weaponPUs.add(new WeaponPU(100, sH*2 - 100, 3, 10, Color.rgb(255, 255, 255)));
+		weaponPUs.add(new WeaponPU(sW/2 - 200 + offset, sH+300 + offset/4, 0, 10));
+		weaponPUs.add(new WeaponPU(680, 380, 1, 10));
+		weaponPUs.add(new WeaponPU(sW/2 - 300 + offset/2, sH - offset, 2, 10));
+		weaponPUs.add(new WeaponPU(100, sH*2 - 100, 3, 10));
 		
 		enemies.add(new Enemy(900, 150, 100, 5, Color.RED));// Color.rgb(255, 0, (int)(Math.random()*255))));
 		
@@ -158,30 +158,30 @@ public class Maps
 		
 		//ammo
 		//pistol
-		ammoPUs.add(new AmmoPU(250, 300, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(250, 350, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(250, 500, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(250, 550, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(700 + 10, 300, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(1000, 300 + offset + weaponOffset, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(1200, 300 + offset + weaponOffset, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(1050, 300 + offset + weaponOffset, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(1150, 300 + offset + weaponOffset, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(1150, 300 + offset + weaponOffset, 0, 10, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(1700, 2100, 0, 30, Color.DARKSLATEGRAY));
-		ammoPUs.add(new AmmoPU(3850, 50 + offset, 0, 30, Color.DARKSLATEGRAY));
+		ammoPUs.add(new AmmoPU(250, 300, 0, 10));
+		ammoPUs.add(new AmmoPU(250, 350, 0, 10));
+		ammoPUs.add(new AmmoPU(250, 500, 0, 10));
+		ammoPUs.add(new AmmoPU(250, 550, 0, 10));
+		ammoPUs.add(new AmmoPU(700 + 10, 300, 0, 10));
+		ammoPUs.add(new AmmoPU(1000, 300 + offset + weaponOffset, 0, 10));
+		ammoPUs.add(new AmmoPU(1200, 300 + offset + weaponOffset, 0, 10));
+		ammoPUs.add(new AmmoPU(1050, 300 + offset + weaponOffset, 0, 10));
+		ammoPUs.add(new AmmoPU(1150, 300 + offset + weaponOffset, 0, 10));
+		ammoPUs.add(new AmmoPU(1150, 300 + offset + weaponOffset, 0, 10));
+		ammoPUs.add(new AmmoPU(1700, 2100, 0, 30));
+		ammoPUs.add(new AmmoPU(3850, 50 + offset, 0, 30));
 
 		
 		
 		//shotgun
-		ammoPUs.add(new AmmoPU(400, 1550, 1, 10, Color.PURPLE));
-		ammoPUs.add(new AmmoPU(400, 1750, 1, 10, Color.PURPLE));
-		ammoPUs.add(new AmmoPU(1800, 2100, 1, 20, Color.PURPLE));
+		ammoPUs.add(new AmmoPU(400, 1550, 1, 10));
+		ammoPUs.add(new AmmoPU(400, 1750, 1, 10));
+		ammoPUs.add(new AmmoPU(1800, 2100, 1, 20));
 		
 		//assault rifle
-		ammoPUs.add(new AmmoPU(2950 + offset, 1650, 2, 20, Color.DARKBLUE));
-		ammoPUs.add(new AmmoPU(2950 + offset, 1850, 2, 20, Color.DARKBLUE));
-		ammoPUs.add(new AmmoPU(1700 - weaponOffset, 1250 - offset, 2, 50, Color.DARKBLUE));
+		ammoPUs.add(new AmmoPU(2950 + offset, 1650, 2, 20));
+		ammoPUs.add(new AmmoPU(2950 + offset, 1850, 2, 20));
+		ammoPUs.add(new AmmoPU(1700 - weaponOffset, 1250 - offset, 2, 50));
 
 
 
@@ -189,9 +189,9 @@ public class Maps
 		
 
 //		//weapons
-		weaponPUs.add(new WeaponPU(250 - weaponOffset, 400, 0, 20, Color.DARKSLATEGRAY));
-		weaponPUs.add(new WeaponPU(400 - weaponOffset, 1650, 1, 10, Color.PURPLE));
-		weaponPUs.add(new WeaponPU(2950 + offset - weaponOffset, 1750 - weaponOffset, 2, 20, Color.DARKBLUE));
+		weaponPUs.add(new WeaponPU(250 - weaponOffset, 400, 0, 20));
+		weaponPUs.add(new WeaponPU(400 - weaponOffset, 1650, 1, 10));
+		weaponPUs.add(new WeaponPU(2950 + offset - weaponOffset, 1750 - weaponOffset, 2, 20));
 
 		
 		//enemies
