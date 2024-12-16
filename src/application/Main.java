@@ -19,6 +19,7 @@ import entity.Wall;
 import entity.enemies.Enemy;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -117,6 +118,12 @@ public class Main extends Application
 	    	if (player.getGuns().get(0).isPickedUp())
 	    	{
 	    		player.setEquippedWeapon(player.getGuns().get(0));
+	    	}
+	    	if (mapNumber == 3)
+	    	{
+	    		//if the map number is too high, then just reset the data
+	    		player = new Player(0, 0, 100);
+	    		mapNumber = 1;
 	    	}
 	    	startGame(primaryStage);
 
@@ -240,15 +247,10 @@ public class Main extends Application
 		{
 			Maps.createMap2(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
 		}
-		else if (i == 3)
-		{
-			Maps.createMap3(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
 
-		}
 		else
 		{
-			this.mapNumber = 1;
-			loadMap(mapNumber);
+			Platform.exit();
 		}
 
 	}
