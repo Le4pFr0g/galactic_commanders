@@ -16,6 +16,7 @@ public class Pistol extends Gun
 	public Pistol()
 	{
 		super(dmg, fireRate, bSpeed, defaultAmmo, false);
+		this.setPickedUp(true);
 
 	}
 	

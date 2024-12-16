@@ -21,10 +21,13 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -37,6 +40,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 
 public class Main extends Application
 {
@@ -49,6 +53,8 @@ public class Main extends Application
 	private AnimationTimer inputHandler;
 	private int cameraDistance = 100;
 	private int mapNumber = 1;
+	private String fileName = "saveFile.txt";
+
 
 	// user input
 	private Set<KeyCode> keysPressed = new HashSet<>();
@@ -56,7 +62,7 @@ public class Main extends Application
 	private boolean isShooting = false;
 
 	// game objects
-	private Player player;
+	private Player player = new Player(0, 0, 100);
 	private ArrayList<Enemy> enemies = new ArrayList<>();
 	private ArrayList<AmmoPU> ammoPUs = new ArrayList<>();
 	private ArrayList<WeaponPU> weaponPUs = new ArrayList<>();
@@ -72,6 +78,56 @@ public class Main extends Application
 	public void start(Stage primaryStage) throws Exception
 	{
 		primaryStage.setTitle("Galactic Commanders");
+
+		System.out.println(SCREEN_WIDTH);
+		System.out.println(SCREEN_HEIGHT);
+
+	    // Main Menu Scene
+	    StackPane menuPane = new StackPane();
+	    menuPane.setBackground(new Background(new BackgroundFill(Color.SANDYBROWN, CornerRadii.EMPTY, Insets.EMPTY)));
+
+	    // Title Label
+	    Label titleLbl = new Label("Galactic Commanders");
+	    titleLbl.setFont(Font.font("Arial", 48));
+	    titleLbl.setTextFill(Color.DARKRED);
+
+	    // Play Button
+	    Button playBtn = new Button("Play");
+	    playBtn.setFont(Font.font(24));
+	    playBtn.setOnAction(e -> startGame(primaryStage));
+
+	    // Exit Button
+	    Button exitBtn = new Button("Exit");
+	    exitBtn.setFont(Font.font(24));
+	    exitBtn.setOnAction(e -> primaryStage.close());
+	    
+	    Button continueBtn = new Button("Continue");
+	    continueBtn.setFont(Font.font(24));
+	    continueBtn.setOnAction(e -> {
+	    	loadData();
+	    	//equip the player with the pistol on load
+	    	//should make the game feel a little more intuitive
+	    	if (player.getGuns().get(0).isPickedUp())
+	    	{
+	    		player.setEquippedWeapon(player.getGuns().get(0));
+	    	}
+	    	startGame(primaryStage);
+
+	    });
+
+
+	    VBox menuLayout = new VBox(20, titleLbl, playBtn, continueBtn, exitBtn);
+	    menuLayout.setAlignment(Pos.CENTER);
+
+	    menuPane.getChildren().add(menuLayout);
+	    Scene menuScene = new Scene(menuPane, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	    primaryStage.setScene(menuScene);
+	    primaryStage.show();	
+	}
+	
+	public void startGame(Stage primaryStage)
+	{
 
 		StackPane pane = new StackPane();
 		Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -95,8 +151,6 @@ public class Main extends Application
 		pane.setBackground(new Background(new BackgroundFill(Color.SANDYBROWN, CornerRadii.EMPTY, Insets.EMPTY)));
 		pane.getChildren().add(canvas);
 
-		this.player = new Player(200, 200, 90);
-
 		// Game loop using AnimationTimer
 		inputHandler = new AnimationTimer()
 		{
@@ -109,8 +163,6 @@ public class Main extends Application
 
 		};
 
-		loadMap(mapNumber);
-
 		inputHandler.start();
 		gameLoop = new AnimationTimer()
 		{
@@ -122,10 +174,11 @@ public class Main extends Application
 				player.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			}
 		};
+		
+		loadMap(mapNumber);
+
 		gameLoop.start();
 
-		System.out.println(SCREEN_WIDTH);
-		System.out.println(SCREEN_HEIGHT);
 
 		Scene scene = new Scene(pane, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -143,6 +196,7 @@ public class Main extends Application
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
+
 	}
 
 	private void loadMap(int i)
@@ -159,6 +213,11 @@ public class Main extends Application
 		else if (i == 2)
 		{
 			Maps.createMap2(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
+		}
+		else if (i == 3)
+		{
+			Maps.createMap3(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
+
 		}
 		else
 		{
@@ -383,6 +442,10 @@ public class Main extends Application
 			for (Enemy e : enemies)
 			{
 				e.setX(e.getX() + player.getSpeed());
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setX(p.getX() + player.getSpeed());
+				}
 			}
 			for (Wall w : walls)
 			{
@@ -416,6 +479,10 @@ public class Main extends Application
 			for (Enemy e : enemies)
 			{
 				e.setX(e.getX() - player.getSpeed());
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setX(p.getX() - player.getSpeed());
+				}
 			}
 			for (Wall w : walls)
 			{
@@ -443,6 +510,10 @@ public class Main extends Application
 			for (Enemy e : enemies)
 			{
 				e.setY(e.getY() + player.getSpeed());
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setY(p.getY() + player.getSpeed());
+				}
 			}
 			for (Wall w : walls)
 			{
@@ -469,6 +540,10 @@ public class Main extends Application
 			for (Enemy e : enemies)
 			{
 				e.setY(e.getY() - player.getSpeed());
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setY(p.getY() - player.getSpeed());
+				}
 			}
 			for (Wall w : walls)
 			{
@@ -616,7 +691,6 @@ public class Main extends Application
 		gc.setFont(Font.getDefault());
 
 
-		String fileName = "saveFile.txt";
 
 		int mapCompleted = this.mapNumber;
 		int playerHP = player.getHp();
@@ -644,13 +718,11 @@ public class Main extends Application
 			e.printStackTrace();
 		}
 		
-		loadData(fileName);
-
         loadMap(++mapNumber);
         gameLoop.start();
 	}
 
-	private void loadData(String fileName)
+	private void loadData()
 	{
 		JSONObject loadData = null;
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName)))
@@ -690,7 +762,7 @@ public class Main extends Application
 				player.getGuns().get(i).setAmmo(loadedAmmo.getInt(i));
 			}
 			
-			this.mapNumber = mapCompleted;
+			this.mapNumber = mapCompleted + 1;
 			System.out.println("map from file: " + mapNumber);
 
 		}

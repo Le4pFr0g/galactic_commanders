@@ -6,11 +6,11 @@
         10
     ],
     "weaponsObtained": [
-        false,
+        true,
         false,
         false,
         false
     ],
     "levelCompleted": 1,
-    "playerHP": 90
+    "playerHP": 100
 }

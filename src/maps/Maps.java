@@ -38,6 +38,8 @@ public class Maps
 	{
 		addMapBorder(walls, sW, sH);
 		walls.add(0, new ExitWall(450, 50, 200, 200));
+		player.setX(200);
+		player.setY(200);
 		
 		//Vertical
 		walls.add(new Wall(sW + 300, 50, 50, 2*sH, Color.GRAY));
@@ -231,6 +233,20 @@ public class Maps
 			
 	}
 
-	
+	//testing
+	public static void createMap3(double sW, double sH, Player player, ArrayList<Wall> walls, ArrayList<Enemy> enemies, ArrayList<HealthPU> healthPUs, ArrayList<WeaponPU> weaponPUs, ArrayList<AmmoPU> ammoPUs) {
+	    // Add map border for boundary
+	    addMapBorder(walls, sW, sH);
+
+	    // Place the exit wall at the 0th index for end-game condition
+	    walls.add(0, new ExitWall(1800, 50, 200, 200));
+
+	    // Place the player starting position
+	    player.setX(200);
+	    player.setY(200);
+
+	    enemies.add(new Blob(1000, 1100)); // Blob adjusted for more room to move and engage players
+}
+
 
 }
