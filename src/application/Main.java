@@ -2,6 +2,7 @@ package application;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,12 +24,15 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import maps.Maps;
@@ -39,6 +43,7 @@ import weapons.Gun;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
@@ -51,9 +56,11 @@ public class Main extends Application
 	private final double SCREEN_HEIGHT = 900;
 	private AnimationTimer gameLoop;
 	private AnimationTimer inputHandler;
-	private int cameraDistance = 100;
+	private int cameraDistance = 150;
 	private int mapNumber = 1;
 	private String fileName = "saveFile.txt";
+    Pane overlay = new Pane();
+
 
 
 	// user input
@@ -86,7 +93,7 @@ public class Main extends Application
 	    StackPane menuPane = new StackPane();
 	    menuPane.setBackground(new Background(new BackgroundFill(Color.SANDYBROWN, CornerRadii.EMPTY, Insets.EMPTY)));
 
-	    // Title Label
+        // Title Label
 	    Label titleLbl = new Label("Galactic Commanders");
 	    titleLbl.setFont(Font.font("Arial", 48));
 	    titleLbl.setTextFill(Color.DARKRED);
@@ -121,6 +128,20 @@ public class Main extends Application
 
 	    menuPane.getChildren().add(menuLayout);
 	    Scene menuScene = new Scene(menuPane, SCREEN_WIDTH, SCREEN_HEIGHT);
+	    
+	    
+        // Dimmed background
+        Rectangle dimBackground = new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        dimBackground.setFill(Color.rgb(0, 0, 0, 0.5)); // Semi-transparent black
+
+        Label lbl = new Label("Galactic Commanders\n\nPress Space to continue");
+	    lbl.setFont(Font.font("Arial", 48));
+	    lbl.setTextFill(Color.DARKRED);
+	    lbl.setLayoutX(SCREEN_WIDTH/2 - 200);
+	    lbl.setLayoutY(SCREEN_HEIGHT/2 - 100);
+
+        overlay.getChildren().addAll(dimBackground, lbl);
+        overlay.setVisible(false);
 
 	    primaryStage.setScene(menuScene);
 	    primaryStage.show();	
@@ -134,7 +155,7 @@ public class Main extends Application
 		canvas.setFocusTraversable(true);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 
-//		 // Load an image
+		 // Load an image
 //        Image backgroundImage = new Image(getClass().getResource("/desert_sand.jpg").toExternalForm()); // Adjust path as necessary
 //
 //        // Create a BackgroundImage with the loaded image
@@ -149,7 +170,7 @@ public class Main extends Application
 //        pane.setBackground(new Background(background));
 
 		pane.setBackground(new Background(new BackgroundFill(Color.SANDYBROWN, CornerRadii.EMPTY, Insets.EMPTY)));
-		pane.getChildren().add(canvas);
+		pane.getChildren().addAll(canvas, overlay);
 
 		// Game loop using AnimationTimer
 		inputHandler = new AnimationTimer()
@@ -171,8 +192,11 @@ public class Main extends Application
 			{
 				update(gc);
 				cameraUpdate(gc);
+				mouseLook(gc);
 				player.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			}
+
+
 		};
 		
 		loadMap(mapNumber);
@@ -181,6 +205,8 @@ public class Main extends Application
 
 
 		Scene scene = new Scene(pane, SCREEN_WIDTH, SCREEN_HEIGHT);
+		
+		scene.setOnMouseMoved(event -> {this.updateMousePosition(event);});
 
 		// Add key listeners to track pressed keys
 		scene.setOnKeyPressed(this::handleKeyPressed);
@@ -354,6 +380,7 @@ public class Main extends Application
 		{
 			for (Bullet p : e.getProjectiles())
 			{
+				p.updatePos();
 				if (p.checkCollision(player))
 				{
 					// System.out.println("HIT PLAYER");
@@ -407,20 +434,181 @@ public class Main extends Application
 		}
 
 	}
+	
+	private void mouseLook(GraphicsContext gc)
+	{
+		int mouseLookConstant = 5;
+		if (mouseX < 2*cameraDistance && player.getX() < SCREEN_WIDTH - 2*cameraDistance - player.getWidth())
+		{
+			player.setX(player.getX() + mouseLookConstant);
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					b.setX(b.getX() + mouseLookConstant);
+				}
+			}
+			
+			for (HealthPU h : healthPUs)
+			{
+				h.setX(h.getX() + mouseLookConstant);
+			}
+			for (WeaponPU w : weaponPUs)
+			{
+				w.setX(w.getX() + mouseLookConstant);
+			}
+			for (AmmoPU a : ammoPUs)
+			{
+				a.setX(a.getX() + mouseLookConstant);
+			}
+			for (Enemy e : enemies)
+			{
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setX(p.getX() + mouseLookConstant);
+				}
+				e.setX(e.getX() + mouseLookConstant);
+			}
+			for (Wall w : walls)
+			{
+				w.setX(w.getX() + mouseLookConstant);
+			}
+
+		}
+		
+		else if (mouseX > SCREEN_WIDTH - 2*cameraDistance && player.getX() > 2*cameraDistance)
+		{
+			player.setX(player.getX() - 5);
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					b.setX(b.getX() - mouseLookConstant);
+				}
+			}
+			
+			for (HealthPU h : healthPUs)
+			{
+				h.setX(h.getX() - mouseLookConstant);
+			}
+			for (WeaponPU w : weaponPUs)
+			{
+				w.setX(w.getX() - mouseLookConstant);
+			}
+			for (AmmoPU a : ammoPUs)
+			{
+				a.setX(a.getX() - mouseLookConstant);
+			}
+			for (Enemy e : enemies)
+			{
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setX(p.getX() - mouseLookConstant);
+				}
+				e.setX(e.getX() - mouseLookConstant);
+			}
+			for (Wall w : walls)
+			{
+				w.setX(w.getX() - mouseLookConstant);
+			}
+		}
+		
+		if (mouseY < cameraDistance && player.getY() < SCREEN_HEIGHT - cameraDistance - player.getWidth())
+		{
+			player.setY(player.getY() + 5);
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					b.setY(b.getY() + mouseLookConstant);
+				}
+			}
+			for (HealthPU h : healthPUs)
+			{
+				h.setY(h.getY() + mouseLookConstant);
+			}
+			for (WeaponPU w : weaponPUs)
+			{
+				w.setY(w.getY() + mouseLookConstant);
+			}
+			for (AmmoPU a : ammoPUs)
+			{
+				a.setY(a.getY() + mouseLookConstant);
+			}
+			for (Enemy e : enemies)
+			{
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setY(p.getY() + mouseLookConstant);
+				}
+				e.setY(e.getY() + mouseLookConstant);
+			}
+			for (Wall w : walls)
+			{
+				w.setY(w.getY() + mouseLookConstant);
+			}
+		}
+		
+		else if (mouseY > SCREEN_HEIGHT - cameraDistance && player.getY() >  cameraDistance)
+		{
+			player.setY(player.getY() - 5);
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					b.setY(b.getY() + mouseLookConstant);
+				}
+			}
+			
+			for (HealthPU h : healthPUs)
+			{
+				h.setY(h.getY() - mouseLookConstant);
+			}
+			for (WeaponPU w : weaponPUs)
+			{
+				w.setY(w.getY() - mouseLookConstant);
+			}
+			for (AmmoPU a : ammoPUs)
+			{
+				a.setY(a.getY() - mouseLookConstant);
+			}
+			for (Enemy e : enemies)
+			{
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setY(p.getY() - mouseLookConstant);
+				}
+				e.setY(e.getY() - mouseLookConstant);
+			}
+			for (Wall w : walls)
+			{
+				w.setY(w.getY() - mouseLookConstant);
+			}
+		}
+
+		
+	}//end mouse look
 
 	private void cameraUpdate(GraphicsContext gc)
 	{
-//		gc.setFill(Color.BLACK);
+//		gc.setFill(new Color(0, 0, 0, 0.5));
 //		
 //		gc.fillRect(0, 0, cameraDistance, SCREEN_HEIGHT);
 //		gc.fillRect(SCREEN_WIDTH-cameraDistance, 0, cameraDistance, SCREEN_HEIGHT);
 //		
 //		gc.fillRect(0, 0, SCREEN_WIDTH, cameraDistance);
 //		gc.fillRect(0, SCREEN_HEIGHT-cameraDistance, SCREEN_WIDTH, cameraDistance);
-
+		
 		if (player.getX() < 2 * cameraDistance && keysPressed.contains(KeyCode.A))
 		{
-			player.setX(2 * cameraDistance);
+			player.setX(2*cameraDistance);
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					b.setX(b.getX() + player.getSpeed());
+				}
+			}
 			// health pick ups
 			// weapon pick ups
 			// ammo pick ups
@@ -441,6 +629,10 @@ public class Main extends Application
 			}
 			for (Enemy e : enemies)
 			{
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setX(p.getX() + player.getSpeed());
+				}
 				e.setX(e.getX() + player.getSpeed());
 				for (Bullet p : e.getProjectiles())
 				{
@@ -456,8 +648,14 @@ public class Main extends Application
 		else if (player.getX() > SCREEN_WIDTH - 2 * cameraDistance - player.getWidth()
 				&& keysPressed.contains(KeyCode.D))
 		{
-			player.setX(SCREEN_WIDTH - 2 * cameraDistance - player.getWidth());
-
+			player.setX(SCREEN_WIDTH - 2*cameraDistance - player.getWidth());
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					b.setX(b.getX() - player.getSpeed());
+				}
+			}
 			// health pick ups
 			// weapon pick ups
 			// ammo pick ups
@@ -478,6 +676,10 @@ public class Main extends Application
 			}
 			for (Enemy e : enemies)
 			{
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setX(p.getX() - player.getSpeed());
+				}
 				e.setX(e.getX() - player.getSpeed());
 				for (Bullet p : e.getProjectiles())
 				{
@@ -494,7 +696,14 @@ public class Main extends Application
 		if (player.getY() < cameraDistance && keysPressed.contains(KeyCode.W))
 		{
 			player.setY(cameraDistance);
-
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					b.setY(b.getY() + player.getSpeed());
+				}
+			}
+			
 			for (HealthPU h : healthPUs)
 			{
 				h.setY(h.getY() + player.getSpeed());
@@ -509,6 +718,10 @@ public class Main extends Application
 			}
 			for (Enemy e : enemies)
 			{
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setY(p.getY() + player.getSpeed());
+				}
 				e.setY(e.getY() + player.getSpeed());
 				for (Bullet p : e.getProjectiles())
 				{
@@ -524,7 +737,14 @@ public class Main extends Application
 		else if (player.getY() > SCREEN_HEIGHT - cameraDistance - player.getWidth() && keysPressed.contains(KeyCode.S))
 		{
 			player.setY(SCREEN_HEIGHT - cameraDistance - player.getWidth());
-
+			for (Gun g : player.getGuns())
+			{
+				for (Bullet b : g.getBullets())
+				{
+					b.setY(b.getY() - player.getSpeed());
+				}
+			}
+			
 			for (HealthPU h : healthPUs)
 			{
 				h.setY(h.getY() - player.getSpeed());
@@ -539,6 +759,10 @@ public class Main extends Application
 			}
 			for (Enemy e : enemies)
 			{
+				for (Bullet p : e.getProjectiles())
+				{
+					p.setY(p.getY() - player.getSpeed());
+				}
 				e.setY(e.getY() - player.getSpeed());
 				for (Bullet p : e.getProjectiles())
 				{
@@ -558,6 +782,7 @@ public class Main extends Application
 		if (player.getHp() <= 0)
 		{
 			player.kill(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
+			gameLoop.stop();
 
 		}
 		else
@@ -594,7 +819,7 @@ public class Main extends Application
 			// player sprint
 			if (keysPressed.contains(KeyCode.SHIFT))
 			{
-				player.setSpeed(30);
+				player.setSpeed(7);
 			}
 			else
 			{
@@ -632,9 +857,11 @@ public class Main extends Application
 			if (keysPressed.contains(KeyCode.ESCAPE))
 			{
 				gameLoop.stop();
+				overlay.setVisible(true);
 			}
-			if (keysPressed.contains(KeyCode.BACK_SPACE))
+			if (keysPressed.contains(KeyCode.SPACE))
 			{
+				overlay.setVisible(false);
 				gameLoop.start();
 			}
 		}
@@ -655,13 +882,11 @@ public class Main extends Application
 		isShooting = true;
 		if (player.getEquippedWeapon() != null)
 			player.getEquippedWeapon().setShooting(true);
-		updateMousePosition(event);
 	}
 
 	private void handleMouseDragged(MouseEvent event)
 	{
 		isShooting = true;
-		updateMousePosition(event);
 	}
 
 	private void handleMouseReleased(MouseEvent event)
@@ -669,7 +894,6 @@ public class Main extends Application
 		isShooting = false;
 		if (player.getEquippedWeapon() != null)
 			player.getEquippedWeapon().setShooting(false);
-
 	}
 
 	private void updateMousePosition(MouseEvent event)

@@ -96,7 +96,7 @@ public class Maps
 	public static void createMap2(double sW, double sH, Player player, ArrayList<Wall> walls, ArrayList<Enemy> enemies, ArrayList<HealthPU> healthPUs, ArrayList<WeaponPU> weaponPUs, ArrayList<AmmoPU> ammoPUs)
 	{
 		addMapBorder(walls, 1950, 1100);
-		walls.add(0, new ExitWall(450, 50, 200, 200));
+		walls.add(0, new ExitWall(2450, 50, 200, 200));
 		player.setX(250);
 		player.setY(100);
 		

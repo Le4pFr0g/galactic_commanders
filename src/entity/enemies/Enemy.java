@@ -397,7 +397,6 @@ public class Enemy extends MovingObject
 		// projectiles
 		for (Bullet p : projectiles)
 		{
-			p.updatePos();
 			p.render(gc, sW, sH);
 		}
 
