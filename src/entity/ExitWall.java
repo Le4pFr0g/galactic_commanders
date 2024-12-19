@@ -12,6 +12,13 @@ public class ExitWall extends Wall
 		super(x, y, width, height, exitColor);
 		// TODO Auto-generated constructor stub
 	}
+	@Override
+	public int checkCollision(MovingObject p)
+	{
+		int side = sideFinder(p);
+		
+		return side;
+	}
 	
 	@Override
 	public void render(GraphicsContext gc, double sW, double sH)

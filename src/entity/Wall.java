@@ -80,7 +80,7 @@ public class Wall
 //returns 2 for right
 //returns 3 for bottom
 //returns 4 for left
-	private int sideFinder(MovingObject p)
+	protected int sideFinder(MovingObject p)
 	{
 		boolean isColliding = 	this.x < p.getX() + p.getWidth() &&
 								this.x + this.width > p.getX() && 

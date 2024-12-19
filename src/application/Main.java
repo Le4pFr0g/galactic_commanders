@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +19,8 @@ import org.json.*;
 import bullets.Bullet;
 import entity.Player;
 import entity.Wall;
+import entity.enemies.AssaultTrooper;
+import entity.enemies.Blob;
 import entity.enemies.Enemy;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -55,13 +60,17 @@ public class Main extends Application
 //    private final double SCREEN_HEIGHT = Screen.getPrimary().getBounds().getHeight();// * 0.5;
 	private final double SCREEN_WIDTH = 1600;
 	private final double SCREEN_HEIGHT = 900;
+	Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+	GraphicsContext gc = canvas.getGraphicsContext2D();
 	private AnimationTimer gameLoop;
 	private AnimationTimer inputHandler;
 	private int cameraDistance = 150;
 	private int mapNumber = 1;
 	private String fileName = "saveFile.txt";
-    Pane overlay = new Pane();
-
+    private Pane overlay = new Pane();
+    private Stage menuStage;
+    private Scene menuScene;
+    Label victoryLbl = new Label("YOU WIN!");
 
 
 	// user input
@@ -85,13 +94,14 @@ public class Main extends Application
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
+    	menuStage = primaryStage;
 		primaryStage.setTitle("Galactic Commanders");
 
 		System.out.println(SCREEN_WIDTH);
 		System.out.println(SCREEN_HEIGHT);
 
-	    // Main Menu Scene
-	    StackPane menuPane = new StackPane();
+	    // Main Menu Pane
+		StackPane menuPane = new StackPane();
 	    menuPane.setBackground(new Background(new BackgroundFill(Color.SANDYBROWN, CornerRadii.EMPTY, Insets.EMPTY)));
 
         // Title Label
@@ -100,19 +110,36 @@ public class Main extends Application
 	    titleLbl.setTextFill(Color.DARKRED);
 
 	    // Play Button
+	    Button continueBtn = new Button("Continue");
 	    Button playBtn = new Button("Play");
 	    playBtn.setFont(Font.font(24));
-	    playBtn.setOnAction(e -> startGame(primaryStage));
+	    playBtn.setOnAction(e -> 
+	    {
+	    	playBtn.setDisable(true);
+	    	continueBtn.setDisable(true);
+	    	playBtn.setVisible(false);
+	    	continueBtn.setVisible(false);
+	    	//this should delete the previous save and then start the new game
+	    	saveData();
+	    	startGame(primaryStage);
+
+	    	
+	    });
 
 	    // Exit Button
 	    Button exitBtn = new Button("Exit");
 	    exitBtn.setFont(Font.font(24));
 	    exitBtn.setOnAction(e -> primaryStage.close());
 	    
-	    Button continueBtn = new Button("Continue");
 	    continueBtn.setFont(Font.font(24));
-	    continueBtn.setOnAction(e -> {
-	    	loadData();
+	    continueBtn.setOnAction(e -> 
+	    {
+	    	playBtn.setDisable(true);
+	    	continueBtn.setDisable(true);
+	    	playBtn.setVisible(false);
+	    	continueBtn.setVisible(false);
+	    	
+    		loadData();
 	    	//equip the player with the pistol on load
 	    	//should make the game feel a little more intuitive
 	    	if (player.getGuns().get(0).isPickedUp())
@@ -127,27 +154,35 @@ public class Main extends Application
 	    	}
 	    	startGame(primaryStage);
 
+	    	
+
 	    });
+	    
+	    victoryLbl.setFont(Font.font("Arial", 40));
+	    victoryLbl.setTextFill(Color.DARKRED);
+	    victoryLbl.setLayoutX(SCREEN_WIDTH/2 - 200);
+	    victoryLbl.setLayoutY(SCREEN_HEIGHT/2 - 100);
 
-
-	    VBox menuLayout = new VBox(20, titleLbl, playBtn, continueBtn, exitBtn);
+	    victoryLbl.setVisible(false);
+	    victoryLbl.setManaged(false);
+	    VBox menuLayout = new VBox(20, titleLbl, playBtn, victoryLbl,  continueBtn, exitBtn);
 	    menuLayout.setAlignment(Pos.CENTER);
 
 	    menuPane.getChildren().add(menuLayout);
-	    Scene menuScene = new Scene(menuPane, SCREEN_WIDTH, SCREEN_HEIGHT);
+	    menuScene = new Scene(menuPane, SCREEN_WIDTH, SCREEN_HEIGHT);
 	    
 	    
         // Dimmed background
         Rectangle dimBackground = new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         dimBackground.setFill(Color.rgb(0, 0, 0, 0.5)); // Semi-transparent black
 
-        Label lbl = new Label("Galactic Commanders\n\nPress Space to continue");
-	    lbl.setFont(Font.font("Arial", 48));
-	    lbl.setTextFill(Color.DARKRED);
-	    lbl.setLayoutX(SCREEN_WIDTH/2 - 200);
-	    lbl.setLayoutY(SCREEN_HEIGHT/2 - 100);
+        Label resumeLbl = new Label("Galactic Commanders\n\nPress Space to continue");
+	    resumeLbl.setFont(Font.font("Arial", 48));
+	    resumeLbl.setTextFill(Color.DARKRED);
+	    resumeLbl.setLayoutX(SCREEN_WIDTH/2 - 200);
+	    resumeLbl.setLayoutY(SCREEN_HEIGHT/2 - 100);
 
-        overlay.getChildren().addAll(dimBackground, lbl);
+        overlay.getChildren().addAll(dimBackground, resumeLbl);
         overlay.setVisible(false);
 
 	    primaryStage.setScene(menuScene);
@@ -156,11 +191,10 @@ public class Main extends Application
 	
 	public void startGame(Stage primaryStage)
 	{
+		canvas.setFocusTraversable(true);
 
 		StackPane pane = new StackPane();
-		Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
-		canvas.setFocusTraversable(true);
-		GraphicsContext gc = canvas.getGraphicsContext2D();
+
 
 		 // Load an image
 //        Image backgroundImage = new Image(getClass().getResource("/desert_sand.jpg").toExternalForm()); // Adjust path as necessary
@@ -186,7 +220,7 @@ public class Main extends Application
 			@Override
 			public void handle(long arg0)
 			{
-				handleControls(gc);
+				handleControls();
 			}
 
 		};
@@ -197,9 +231,9 @@ public class Main extends Application
 			@Override
 			public void handle(long now)
 			{
-				update(gc);
-				cameraUpdate(gc);
-				mouseLook(gc);
+				update();
+				cameraUpdate();
+				mouseLook();
 				player.render(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			}
 
@@ -241,20 +275,30 @@ public class Main extends Application
 		ammoPUs.clear();
 
 		if (i == 1)
+		{
 			Maps.createMap1(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
+	        gameLoop.start();
+		}
 		else if (i == 2)
 		{
 			Maps.createMap2(SCREEN_WIDTH, SCREEN_HEIGHT, player, walls, enemies, healthPUs, weaponPUs, ammoPUs);
+	        gameLoop.start();
 		}
 
 		else
 		{
-			Platform.exit();
+			player = new Player(SCREEN_WIDTH + 600, SCREEN_HEIGHT/2 - 300, 1000);
+			mapNumber = 1;
+			victoryLbl.setVisible(true);
+		    victoryLbl.setManaged(true);
+
+			this.menuStage.setScene(this.menuScene);
 		}
+		
 
 	}
 
-	private void update(GraphicsContext gc)
+	private void update()
 	{
 		gc.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -431,12 +475,12 @@ public class Main extends Application
 		if (walls.get(0).checkCollision(player) != 0)
 		{
 			System.out.println("LEVEL FINSIHED");
-			endLevel(gc);
+			endLevel();
 		}
 
 	}
 	
-	private void mouseLook(GraphicsContext gc)
+	private void mouseLook()
 	{
 		int mouseLookConstant = 5;
 		if (mouseX < 2*cameraDistance && player.getX() < SCREEN_WIDTH - 2*cameraDistance - player.getWidth())
@@ -590,7 +634,7 @@ public class Main extends Application
 		
 	}//end mouse look
 
-	private void cameraUpdate(GraphicsContext gc)
+	private void cameraUpdate()
 	{
 //		gc.setFill(new Color(0, 0, 0, 0.5));
 //		
@@ -778,12 +822,25 @@ public class Main extends Application
 
 	}
 
-	private void handleControls(GraphicsContext gc)
+	private void handleControls()
 	{
 		if (player.getHp() <= 0)
 		{
 			player.kill(gc, SCREEN_WIDTH, SCREEN_HEIGHT);
 			gameLoop.stop();
+			gc.setFont(Font.font(50));
+			gc.setFill(Color.RED);
+			gc.fillText("PRESS ENTER TO RESTART LEVEL", SCREEN_WIDTH / 2 - 300, SCREEN_HEIGHT / 2 + 200);
+			
+			if (keysPressed.contains(KeyCode.ENTER))
+			{
+				//clear any remnants of the death
+				gc.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+				loadData();
+				loadMap(mapNumber);
+				player.setAlive(true);
+				gameLoop.start();
+			}
 
 		}
 		else
@@ -912,7 +969,7 @@ public class Main extends Application
 //		System.out.println(mouseX + ", " + mouseY);
 	}
 
-	private void endLevel(GraphicsContext gc)
+	private void endLevel()
 	{
 		gameLoop.stop();
 		gc.setFont(Font.getDefault());
@@ -923,8 +980,13 @@ public class Main extends Application
 		gc.fillText(gameOver, SCREEN_WIDTH / 2 - offset * 20, SCREEN_HEIGHT / 2);
 		gc.setFont(Font.getDefault());
 
-
-
+		saveData();
+		
+        loadMap(++mapNumber);
+	}
+	
+	private void saveData()
+	{
 		int mapCompleted = this.mapNumber;
 		int playerHP = player.getHp();
 		JSONArray weaponsObtained = new JSONArray();
@@ -935,7 +997,6 @@ public class Main extends Application
 			ammo.put(player.getGuns().get(i).getAmmo());
 		}
 
-		// Create a JSON object
 		JSONObject saveData = new JSONObject();
 		saveData.put("levelCompleted", mapCompleted);
 		saveData.put("weaponsObtained", weaponsObtained);
@@ -950,9 +1011,6 @@ public class Main extends Application
 		{
 			e.printStackTrace();
 		}
-		
-        loadMap(++mapNumber);
-        gameLoop.start();
 	}
 
 	private void loadData()

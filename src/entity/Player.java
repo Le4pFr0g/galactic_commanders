@@ -195,7 +195,7 @@ public class Player extends MovingObject
 		gc.setFill(Color.RED);
 		String gameOver = "GAME OVER";
 		double offset = gameOver.length() / 2;
-		gc.fillText(gameOver, sW / 2 - 30 * offset, sH / 2);
+		gc.fillText(gameOver, sW / 2 - 30 * offset, sH / 2 - 100);
 		gc.setFont(Font.getDefault());
 		isAlive = false;
 	}

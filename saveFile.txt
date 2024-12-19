@@ -2,13 +2,13 @@
     "ammo": [
         10,
         10,
-        20,
+        10,
         10
     ],
     "weaponsObtained": [
         true,
         false,
-        true,
+        false,
         false
     ],
     "levelCompleted": 1,
