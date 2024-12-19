@@ -49,7 +49,7 @@ public class Enemy extends MovingObject
 			{
 				if (shootingCooldown == 0)
 				{
-					double angle = calcAngle(this.x, p.getX(), this.y, p.getY());
+					double angle = calcAngle(this.x + width/2, p.getX(), this.y + width/2, p.getY());
 					projectiles.add(
 							new Bullet(angle, this.x + width / 2, this.y + width / 2, projectileSpeed, Color.DARKRED));
 					shootingCooldown = 150;

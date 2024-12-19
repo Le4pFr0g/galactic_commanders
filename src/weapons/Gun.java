@@ -63,7 +63,7 @@ public class Gun
 				ammo -= 1;
 				shootingCooldown = fireRate;
 				
-				double angle = Math.atan2((y - p.getY()), (x - p.getX())); // Radians
+				double angle = Math.atan2((y - (p.getY() + p.getWidth()/2)), (x - (p.getX() + p.getWidth()/2 ))); // Radians
 
 				Bullet b = new Bullet(angle, p.getX() + WIDTH / 2, p.getY() + WIDTH / 2, bulletSpeed, Color.GRAY);
 				this.bullets.add(b);

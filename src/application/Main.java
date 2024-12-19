@@ -212,14 +212,13 @@ public class Main extends Application
 
 
 		Scene scene = new Scene(pane, SCREEN_WIDTH, SCREEN_HEIGHT);
-		
-		scene.setOnMouseMoved(event -> {this.updateMousePosition(event);});
 
 		// Add key listeners to track pressed keys
 		scene.setOnKeyPressed(this::handleKeyPressed);
 		scene.setOnKeyReleased(this::handleKeyReleased);
 
 		// Add mouse listeners to track mouse clicks
+		scene.setOnMouseMoved(this::handleMouseMoved);
 		scene.setOnMousePressed(this::handleMousePressed);
 		scene.setOnMouseDragged(this::handleMouseDragged);
 		scene.setOnMouseReleased(this::handleMouseReleased);
@@ -881,6 +880,7 @@ public class Main extends Application
 
 	private void handleMousePressed(MouseEvent event)
 	{
+		updateMousePosition(event);
 		isShooting = true;
 		if (player.getEquippedWeapon() != null)
 			player.getEquippedWeapon().setShooting(true);
@@ -888,11 +888,18 @@ public class Main extends Application
 
 	private void handleMouseDragged(MouseEvent event)
 	{
+		updateMousePosition(event);
 		isShooting = true;
+	}
+	
+	private void handleMouseMoved(MouseEvent event)
+	{
+		updateMousePosition(event);
 	}
 
 	private void handleMouseReleased(MouseEvent event)
 	{
+		updateMousePosition(event);
 		isShooting = false;
 		if (player.getEquippedWeapon() != null)
 			player.getEquippedWeapon().setShooting(false);
